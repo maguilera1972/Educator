@@ -86,11 +86,19 @@ Voir `nginx-lms.conf` (proxy vers `127.0.0.1:3000`). Derrière Cloudflare, préf
 
 ## 7. Mises à jour
 
+Sur la machine de développement (publication vers Gitea) :
+
+```bash
+./scripts/publish-to-gitea.sh "Description du changement"
+```
+
+Sur une machine installée depuis le dépôt :
+
 ```bash
 cd Educator
-git pull https://git.aguilera.ch/Aguilera_Lab/Educator.git
+git pull
 npm install
-sudo systemctl restart lms-educator
+sudo systemctl restart lms-educator   # si le service est installé
 ```
 
 Les dossiers `data/` et `uploads/` sont conservés (hors Git).

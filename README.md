@@ -35,6 +35,18 @@ Ouvrir `http://127.0.0.1:3000` — compte admin défini dans `.env` (par défaut
 
 Guide détaillé : [docs/INSTALL.md](docs/INSTALL.md)
 
+## Mises à jour du dépôt Gitea
+
+Après chaque évolution du logiciel, le dépôt public est synchronisé avec :
+
+```bash
+./scripts/publish-to-gitea.sh "Description courte du changement"
+```
+
+Le jeton d’accès se place dans `~/.config/lms-educator/gitea.token` (hors dépôt) ou dans `GITEA_TOKEN`.
+
+Simulation : `./scripts/publish-to-gitea.sh --dry-run`
+
 ## Configuration
 
 Copier `.env.example` vers `.env` :
