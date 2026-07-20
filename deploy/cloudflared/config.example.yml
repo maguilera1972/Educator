@@ -1,0 +1,27 @@
+# Cloudflare Tunnel — LMS-Educator
+# 1. cloudflared tunnel login
+# 2. cloudflared tunnel create lms-educator
+# 3. Copier ce fichier vers ~/.cloudflared/config.yml
+# 4. Remplacer <TUNNEL_ID> et le chemin credentials-file
+# 5. cloudflared tunnel route dns lms-educator lms-educator.eureka-training.online
+# 6. cloudflared tunnel run lms-educator
+
+tunnel: <TUNNEL_ID>
+credentials-file: /home/lms/.cloudflared/<TUNNEL_ID>.json
+
+# Décommenter si vous utilisez le réseau Cloudflare Zero Trust (WARP)
+# warp-routing:
+#   enabled: false
+
+ingress:
+  - hostname: lms-educator.eureka-training.online
+    service: http://127.0.0.1:3000
+    originRequest:
+      connectTimeout: 30s
+      tcpKeepAlive: 30s
+      keepAliveTimeout: 90s
+      keepAliveConnections: 100
+      httpHostHeader: lms-educator.eureka-training.online
+      # Timeouts élevés pour les uploads de cours (vidéos, slides)
+      noHappyEyeballs: false
+  - service: http_status:404

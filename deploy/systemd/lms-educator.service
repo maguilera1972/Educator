@@ -1,0 +1,35 @@
+[Unit]
+Description=LMS-Educator Node.js application
+Documentation=https://git.aguilera.ch/Aguilera_Lab/Educator
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=lms
+Group=lms
+WorkingDirectory=/home/lms/lms
+Environment=NODE_ENV=production
+Environment=PATH=/home/lms/.local/node/bin:/usr/local/bin:/usr/bin:/bin
+EnvironmentFile=-/home/lms/lms/.env
+ExecStartPre=/bin/bash -c 'test -x /home/lms/.local/node/bin/node'
+ExecStart=/home/lms/.local/node/bin/node server.js
+Restart=always
+RestartSec=5
+TimeoutStartSec=30
+TimeoutStopSec=20
+KillMode=mixed
+# Survive brief I/O stalls after VM updates
+Nice=0
+LimitNOFILE=65535
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=lms-educator
+
+# Health: if the process exits, systemd restarts it
+SuccessExitStatus=0
+
+[Install]
+WantedBy=multi-user.target

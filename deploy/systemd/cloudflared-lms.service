@@ -1,0 +1,26 @@
+[Unit]
+Description=Cloudflare Tunnel for LMS-Educator
+Documentation=https://git.aguilera.ch/Aguilera_Lab/Educator
+After=network-online.target lms-educator.service
+Wants=network-online.target
+Requires=lms-educator.service
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=lms
+Group=lms
+ExecStartPre=/bin/bash -c 'test -x /usr/bin/cloudflared || test -x /usr/local/bin/cloudflared'
+ExecStart=/usr/bin/cloudflared tunnel --config /home/lms/.cloudflared/config.yml run
+Restart=always
+RestartSec=5
+TimeoutStartSec=30
+TimeoutStopSec=20
+KillMode=mixed
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=cloudflared-lms
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="/images/favicon.png" data-app-favicon>
+  <title>Cours — LMS-Educator</title>
+  <link rel="stylesheet" href="/css/style.css?v=54">
+  <script src="/js/config.js?v=3"></script>
+  <script src="/js/i18n.js?v=2"></script>
+  <script src="/js/i18n-catalog.js?v=1"></script>
+</head>
+<body data-page-title-key="nav.courses" data-page-title="Cours">
+  <header class="header">
+    <div class="container">
+      <a href="/" class="logo brand-logo">
+        <img src="/images/logo-emblem.svg" alt="" class="logo-emblem" data-app-logo-emblem aria-hidden="true">
+        <span class="logo-wordmark"><span class="logo-wordmark-lms">LMS</span><span class="logo-wordmark-educator">-Educator</span></span>
+      </a>
+      <nav>
+        <a href="/courses.html" id="nav-courses" data-i18n="nav.courses">Cours</a>
+        <a href="/dashboard.html" id="nav-dashboard" data-i18n="nav.dashboard">Tableau de bord</a>
+        <a href="/admin.html" id="nav-admin" style="display:none" data-i18n="nav.admin">Administration</a>
+        <span id="nav-user" class="nav-user"></span>
+        <a href="#" id="logout-btn" class="nav-logout" hidden data-i18n="nav.logout">Déconnexion</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container page">
+    <header class="page-header">
+      <div class="page-title-wrap">
+        <span id="page-subject-logo-wrap" class="subject-header-logo-wrap" hidden></span>
+        <h2 id="page-title" data-i18n="courses.title">Catalogue des cours</h2>
+      </div>
+      <button class="btn-primary" id="create-course-btn" hidden data-i18n="courses.newCourse">+ Nouveau cours</button>
+    </header>
+
+    <p id="catalog-intro" class="catalog-intro" hidden></p>
+    <div id="pending-banner" class="banner banner-warning" hidden>
+      <p id="pending-banner-text"></p>
+    </div>
+    <nav id="catalog-breadcrumb" class="catalog-breadcrumb" hidden></nav>
+    <div id="subject-grid" class="subject-grid" hidden></div>
+
+    <form class="card form-card" id="create-form" hidden>
+      <h3 data-i18n="courses.createTitle">Créer un cours</h3>
+      <div class="field">
+        <label for="course-subject" data-i18n="courses.subject">Sujet</label>
+        <select id="course-subject" required></select>
+      </div>
+      <div class="field">
+        <label for="course-title" data-i18n="courses.courseTitle">Titre</label>
+        <input type="text" id="course-title" required>
+      </div>
+      <div class="field">
+        <label for="course-desc" data-i18n="courses.description">Description</label>
+        <textarea id="course-desc" rows="3"></textarea>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn-primary" data-i18n="courses.create">Créer</button>
+        <button type="button" class="btn-secondary" id="cancel-create" data-i18n="courses.cancel">Annuler</button>
+      </div>
+      <p id="create-error" class="status error" hidden></p>
+    </form>
+
+    <div id="catalog" class="course-grid"></div>
+    <div id="catalog-sections" class="catalog-sections" hidden></div>
+    <p id="empty" class="muted" hidden></p>
+  </main>
+
+  <script src="/js/avatars-ui.js?v=2"></script>
+  <script src="/js/profile-hover.js?v=1"></script>
+  <script src="/js/subjects-ui.js?v=4"></script>
+  <script src="/js/microsoft-catalog-ui.js?v=2"></script>
+  <script src="/js/api.js?v=9"></script>
+  <script src="/js/sidebar.js?v=15"></script>
+  <script src="/js/sidebar-weather.js?v=4"></script>
+  <script>
+    if (!requireAuth()) throw new Error();
+
+    let user = normalizeUser(API.getUser());
+
+    async function refreshUser() {
+      try {
+        const me = await API.request('/api/auth/me');
+        if (me.user) {
+          user = normalizeUser(me.user);
+          API.setUser(me.user);
+          if (me.token) API.setToken(me.token);
+        }
+      } catch (err) {
+        if (err.message.includes('401')) API.logout();
+      }
+    }
+    const isInstructor = user.role === 'admin' || isActiveInstructor(user);
+    const params = new URLSearchParams(window.location.search);
+    const manageMode = params.get('manage') === '1' && isInstructor;
+    const activeSubject = params.get('subject');
+    let subjectsCatalog = [];
+
+    if (manageMode) {
+      document.getElementById('page-title').textContent = typeof t === 'function' ? t('catalog.manageTitle') : 'Gérer mes cours';
+      document.getElementById('page-title').removeAttribute('data-i18n');
+      if (user.role === 'admin') {
+        document.getElementById('create-course-btn').hidden = false;
+      }
+      document.getElementById('page-subject-logo-wrap').hidden = true;
+      document.getElementById('page-subject-logo-wrap').innerHTML = '';
+    }
+
+    document.getElementById('create-course-btn')?.addEventListener('click', () => {
+      if (user.role === 'admin') {
+        document.getElementById('create-form').hidden = false;
+      }
+    });
+    document.getElementById('cancel-create')?.addEventListener('click', () => {
+      document.getElementById('create-form').hidden = true;
+    });
+
+    function renderCourseCard(c, options = {}) {
+      const course = typeof I18n !== 'undefined' && I18n.localizeCourse ? I18n.localizeCourse(c) : c;
+      const subjectLabel = course.subject_label || course.subject || '';
+      const canOpen = options.manage
+        || (isApprovedLearner(user) && (user.role !== 'learner' || options.enrolled));
+      const instructorView = options.manage && user.role !== 'admin';
+      const microsoftBadges = course.subject === 'microsoft' ? microsoftCourseBadges(course) : '';
+      const badgeRow = microsoftBadges || (subjectLabel ? `<span class="subject-badge">${subjectLabel}</span>` : '');
+      const noDesc = typeof t === 'function' ? t('catalog.noDescription') : 'Aucune description';
+      const enrolled = typeof t === 'function' ? t('catalog.enrolledCount', { n: course.enrollment_count || 0 }) : `${course.enrollment_count || 0} inscrit(s)`;
+      const openLabel = typeof t === 'function' ? (options.manage ? t('catalog.manage') : t('catalog.open')) : (options.manage ? 'Gérer' : 'Ouvrir');
+      const assignHint = typeof t === 'function' ? t('catalog.assignByAdmin') : "Assignation par l'administrateur";
+      return `
+        <article class="card course-card${instructorView ? ' course-card--instructor' : ''}${course.subject === 'microsoft' ? ' course-card--microsoft' : ''}">
+          <div class="course-card-badges">${badgeRow}</div>
+          <h4>${course.title}</h4>
+          ${instructorView ? '' : `<p class="muted">${course.description || noDesc}</p>`}
+          ${instructorView ? '' : `<p class="meta course-card-instructor">
+            ${courseInstructorsLineHtml(course)}
+            · ${enrolled}
+          </p>`}
+          <div class="card-actions">
+            ${canOpen
+              ? `<a href="/course.html?id=${course.id}" class="btn-secondary btn-sm">${openLabel}</a>`
+              : `<span class="muted btn-hint">${assignHint}</span>`}
+          </div>
+        </article>
+      `;
+    }
+
+    function renderMicrosoftSubjectCatalog(subject, enrolledIds) {
+      const sectionsEl = document.getElementById('catalog-sections');
+      const grid = document.getElementById('catalog');
+      grid.hidden = true;
+      grid.innerHTML = '';
+      sectionsEl.hidden = false;
+
+      const subsections = groupCoursesByMicrosoftSubsection(subject.courses || []);
+      document.getElementById('catalog-intro').hidden = false;
+      document.getElementById('catalog-intro').textContent =
+        typeof t === 'function' ? t('catalog.introMicrosoft') : 'Parcours de certification Microsoft organisés selon le poster officiel : fondamentaux, role-based training par domaine et spécialités.';
+
+      sectionsEl.innerHTML = renderMicrosoftCatalogSections(subsections, (course) =>
+        renderCourseCard({ ...course, subject_label: subject.label }, { enrolled: enrolledIds.has(course.id) })
+      );
+    }
+
+    function populateSubjectSelect(selectedId) {
+      const select = document.getElementById('course-subject');
+      select.innerHTML = subjectsCatalog.map((s) =>
+        `<option value="${s.id}"${s.id === selectedId ? ' selected' : ''}>${s.label}</option>`
+      ).join('');
+    }
+
+    function enrichSubject(subject) {
+      const fallback = SUBJECTS_UI.find((s) => s.id === subject.id);
+      return {
+        ...fallback,
+        ...subject,
+        icon: subject.icon || fallback?.icon || '/images/subjects/default.svg',
+      };
+    }
+
+    function renderSubjectGrid() {
+      const grid = document.getElementById('subject-grid');
+      const intro = document.getElementById('catalog-intro');
+      grid.hidden = false;
+      intro.hidden = false;
+      intro.textContent = typeof t === 'function' ? t('catalog.introSubjects') : 'Parcourez les domaines de formation. Les cours seront organisés par sujet au fur et à mesure de leur création.';
+
+      grid.innerHTML = subjectsCatalog.map((s) =>
+        renderSubjectCatalogCard(enrichSubject(s), { activeId: activeSubject })
+      ).join('');
+    }
+
+    function setPageSubjectLogo(subject) {
+      const wrap = document.getElementById('page-subject-logo-wrap');
+      if (!subject?.icon) {
+        wrap.hidden = true;
+        wrap.innerHTML = '';
+        return;
+      }
+      wrap.innerHTML = `<img class="subject-header-logo" src="${subject.icon}" alt="${subject.label}">`;
+      wrap.hidden = false;
+    }
+
+    function clearPageSubjectLogo() {
+      const wrap = document.getElementById('page-subject-logo-wrap');
+      wrap.hidden = true;
+      wrap.innerHTML = '';
+    }
+
+    function renderSubjectBreadcrumb(subject) {
+      const nav = document.getElementById('catalog-breadcrumb');
+      nav.hidden = false;
+      nav.innerHTML = `
+        <a href="/courses.html">${typeof t === 'function' ? t('catalog.allSubjects') : 'Tous les sujets'}</a>
+        <span>/</span>
+        <span class="catalog-breadcrumb-subject">
+          ${subjectLogoHtml(subject, 'subject-breadcrumb-logo')}
+          <span>${subject.label}</span>
+        </span>
+      `;
+      document.getElementById('page-title').textContent = subject.label;
+      setPageSubjectLogo(subject);
+      document.getElementById('catalog-intro').hidden = true;
+      document.getElementById('subject-grid').hidden = true;
+    }
+
+    async function loadSubjectsCatalog() {
+      let apiSubjects = [];
+      try {
+        const res = await API.request('/api/courses/subjects');
+        apiSubjects = res.subjects || [];
+      } catch (_) {
+        try {
+          const res = await fetch('/api/subjects').then((r) => r.json());
+          apiSubjects = res.subjects || [];
+        } catch (_) {}
+      }
+      subjectsCatalog = mergeSubjectsCatalog(apiSubjects).map((s) => {
+        const enriched = enrichSubject(s);
+        const localized = typeof I18n !== 'undefined' && I18n.localizeSubject
+          ? I18n.localizeSubject(enriched)
+          : enriched;
+        if (Array.isArray(localized.courses)) {
+          localized.courses = localized.courses.map((c) => (
+            typeof I18n !== 'undefined' && I18n.localizeCourse ? I18n.localizeCourse(c) : c
+          ));
+        }
+        return localized;
+      });
+      populateSubjectSelect(activeSubject || subjectsCatalog[0]?.id);
+    }
+
+    async function loadCatalog() {
+      await refreshUser();
+      updateNav();
+      await loadSubjectsCatalog();
+
+      const grid = document.getElementById('catalog');
+      const sectionsEl = document.getElementById('catalog-sections');
+      const empty = document.getElementById('empty');
+      applyPendingBanners(user);
+
+      let enrolledIds = new Set();
+      if (user.role === 'learner' && !isActiveInstructor(user) && isApprovedLearner(user)) {
+        try {
+          const { courses: myCourses } = await API.request('/api/courses');
+          enrolledIds = new Set(myCourses.map((c) => c.id));
+        } catch (_) {}
+      }
+
+      if (manageMode) {
+        document.getElementById('catalog-intro').hidden = true;
+        document.getElementById('subject-grid').hidden = true;
+        document.getElementById('catalog-breadcrumb').hidden = true;
+        clearPageSubjectLogo();
+
+        const list = isActiveInstructor(user)
+          ? (await API.request('/api/courses/teaching')).courses
+          : (await API.request('/api/courses')).courses;
+
+        if (!list.length) {
+          empty.textContent = user.role === 'admin'
+            ? (typeof t === 'function' ? t('catalog.emptyManageAdmin') : 'Aucune formation. Créez un cours puis assignez-le à un formateur.')
+            : (typeof t === 'function' ? t('catalog.emptyManageInstructor') : 'Aucune formation ne vous a encore été assignée par l\'administrateur.');
+          empty.hidden = false;
+          grid.innerHTML = '';
+          return;
+        }
+
+        empty.hidden = true;
+        sectionsEl.hidden = true;
+        sectionsEl.innerHTML = '';
+        grid.hidden = false;
+        grid.innerHTML = list.map((c) => {
+          const subject = subjectsCatalog.find((s) => s.id === c.subject);
+          return renderCourseCard({ ...c, subject_label: subject?.label || c.subject }, { manage: true });
+        }).join('');
+        return;
+      }
+
+      if (activeSubject) {
+        const subject = enrichSubject(subjectsCatalog.find((s) => s.id === activeSubject) || {});
+        if (!subject.id) {
+          window.location.href = '/courses.html';
+          return;
+        }
+
+        renderSubjectBreadcrumb(subject);
+        const courses = subject.courses || [];
+
+        if (!courses.length) {
+          empty.textContent = typeof t === 'function'
+            ? t('catalog.emptySubject', { label: subject.label })
+            : `Aucun cours publié pour « ${subject.label} » pour le moment. Le catalogue est en préparation.`;
+          empty.hidden = false;
+          grid.hidden = false;
+          grid.innerHTML = '';
+          sectionsEl.hidden = true;
+          sectionsEl.innerHTML = '';
+          return;
+        }
+
+        empty.hidden = true;
+        if (subject.id === 'microsoft') {
+          renderMicrosoftSubjectCatalog(subject, enrolledIds);
+          return;
+        }
+
+        sectionsEl.hidden = true;
+        sectionsEl.innerHTML = '';
+        grid.hidden = false;
+        grid.innerHTML = courses.map((c) =>
+          renderCourseCard({ ...c, subject_label: subject.label }, { enrolled: enrolledIds.has(c.id) })
+        ).join('');
+        return;
+      }
+
+      renderSubjectGrid();
+      clearPageSubjectLogo();
+      grid.hidden = false;
+      grid.innerHTML = '';
+      sectionsEl.hidden = true;
+      sectionsEl.innerHTML = '';
+      empty.hidden = true;
+    }
+
+    document.getElementById('create-form')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const errEl = document.getElementById('create-error');
+      errEl.hidden = true;
+      try {
+        await API.request('/api/courses', {
+          method: 'POST',
+          body: JSON.stringify({
+            subject: document.getElementById('course-subject').value,
+            title: document.getElementById('course-title').value,
+            description: document.getElementById('course-desc').value,
+          }),
+        });
+        document.getElementById('create-form').hidden = true;
+        document.getElementById('create-form').reset();
+        loadCatalog();
+      } catch (err) {
+        errEl.textContent = err.message;
+        errEl.hidden = false;
+      }
+    });
+
+    if (isInstructor && !manageMode && !activeSubject) {
+      document.getElementById('create-course-btn').hidden = false;
+      document.getElementById('create-course-btn').onclick = () => {
+        window.location.href = '/courses.html?manage=1';
+      };
+      document.getElementById('create-course-btn').textContent = typeof t === 'function' ? t('catalog.manageTitle') : '+ Gérer mes cours';
+    }
+
+    document.addEventListener('lms:localechange', () => {
+      if (manageMode) {
+        document.getElementById('page-title').textContent = typeof t === 'function' ? t('catalog.manageTitle') : 'Gérer mes cours';
+      }
+      if (isInstructor && !manageMode && !activeSubject) {
+        const btn = document.getElementById('create-course-btn');
+        if (btn) btn.textContent = typeof t === 'function' ? t('catalog.manageTitle') : '+ Gérer mes cours';
+      }
+      loadCatalog();
+    });
+
+    loadCatalog();
+  </script>
+</body>
+</html>

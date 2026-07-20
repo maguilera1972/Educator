@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="/images/favicon.png" data-app-favicon>
+  <title>Mon profil — LMS-Educator</title>
+  <link rel="stylesheet" href="/css/style.css?v=54">
+  <script src="/js/config.js?v=3"></script>
+  <script src="/js/i18n.js?v=2"></script>
+  <script src="/js/i18n-catalog.js?v=1"></script>
+</head>
+<body data-page-title-key="profile.title" data-page-title="Mon profil">
+  <header class="header">
+    <div class="container">
+      <a href="/" class="logo brand-logo">
+        <img src="/images/logo-emblem.svg" alt="" class="logo-emblem" data-app-logo-emblem aria-hidden="true">
+        <span class="logo-wordmark"><span class="logo-wordmark-lms">LMS</span><span class="logo-wordmark-educator">-Educator</span></span>
+      </a>
+      <nav>
+        <a href="/courses.html" id="nav-courses" data-i18n="nav.courses">Cours</a>
+        <a href="/dashboard.html" id="nav-dashboard" data-i18n="nav.dashboard">Tableau de bord</a>
+        <a href="/admin.html" id="nav-admin" style="display:none" data-i18n="nav.admin">Administration</a>
+        <span id="nav-user" class="nav-user"></span>
+        <a href="#" id="logout-btn" class="nav-logout" hidden data-i18n="nav.logout">Déconnexion</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container page">
+    <h2 data-i18n="profile.title">Mon profil</h2>
+    <p class="muted" data-i18n="profile.intro">Personnalisez votre avatar et rédigez une présentation visible par les autres membres du LMS.</p>
+
+    <section class="card profile-card">
+      <div class="profile-current">
+        <img id="current-avatar" class="avatar avatar-lg" src="/avatars/generic-0.svg" alt="Votre avatar" data-i18n-attr="alt" data-i18n="profile.yourAvatar">
+        <div>
+          <h3 id="profile-name"></h3>
+          <p id="profile-email" class="muted"></p>
+          <p id="gravatar-status" class="status"></p>
+        </div>
+      </div>
+
+      <div class="profile-options">
+        <h4 data-i18n="profile.avatarSource">Source de l'avatar</h4>
+        <div class="avatar-mode-options">
+          <label class="radio-card">
+            <input type="radio" name="avatar_mode" value="auto" checked>
+            <span><strong data-i18n="profile.modeAuto">Automatique</strong><span data-i18n="profile.modeAutoDesc"> — Gravatar si disponible, sinon avatar générique</span></span>
+          </label>
+          <label class="radio-card">
+            <input type="radio" name="avatar_mode" value="gravatar">
+            <span><strong data-i18n="profile.modeGravatar">Gravatar</strong><span data-i18n="profile.modeGravatarDesc"> — Utiliser mon Gravatar (gravatar.com)</span></span>
+          </label>
+          <label class="radio-card">
+            <input type="radio" name="avatar_mode" value="generic">
+            <span><strong data-i18n="profile.modeGeneric">Avatar générique</strong><span data-i18n="profile.modeGenericDesc"> — Choisir parmi la liste ci-dessous</span></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="profile-generics">
+        <h4 data-i18n="profile.generics">Avatars génériques</h4>
+        <p class="muted" data-i18n="profile.genericsHint">Sélectionnez un avatar si vous n'avez pas de Gravatar ou si vous préférez un style fixe.</p>
+        <div id="generic-grid" class="generic-avatar-grid"></div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn-primary" id="save-avatar" data-i18n="profile.saveAvatar">Enregistrer l'avatar</button>
+        <p id="save-status" class="status" hidden></p>
+      </div>
+    </section>
+
+    <section class="card profile-card profile-bio-card">
+      <h4 data-i18n="profile.bio">Présentation</h4>
+      <p class="muted" data-i18n="profile.bioHint">Décrivez votre parcours, vos compétences ou vos centres d'intérêt. Vous pouvez mettre du texte en forme, ajouter des liens et insérer des images.</p>
+
+      <div class="rich-text-editor">
+        <div id="bio-toolbar" class="rich-text-editor__toolbar">
+          <button type="button" class="rich-text-editor__btn" data-command="bold" title="Gras"><strong>B</strong></button>
+          <button type="button" class="rich-text-editor__btn" data-command="italic" title="Italique"><em>I</em></button>
+          <button type="button" class="rich-text-editor__btn" data-command="insertUnorderedList" title="Liste">• Liste</button>
+          <button type="button" class="rich-text-editor__btn" data-command="createLink" title="Lien">Lien</button>
+          <label class="rich-text-editor__btn rich-text-editor__btn--file" title="Image depuis fichier">
+            Image
+            <input type="file" accept="image/*" data-image-upload hidden>
+          </label>
+          <button type="button" class="rich-text-editor__btn" data-command="insertImageUrl" title="Image par URL">Image URL</button>
+        </div>
+        <div id="bio-editor" class="rich-text-editor__body" data-placeholder="Rédigez votre présentation…"></div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn-primary" id="save-bio" data-i18n="profile.saveBio">Enregistrer la présentation</button>
+        <p id="save-bio-status" class="status" hidden></p>
+      </div>
+
+      <div class="profile-bio-preview-wrap" id="bio-preview-wrap" hidden>
+        <h4>Aperçu</h4>
+        <div id="bio-preview" class="profile-bio-preview"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/js/api.js?v=9"></script>
+  <script src="/js/sidebar.js?v=15"></script>
+  <script src="/js/sidebar-weather.js?v=4"></script>
+  <script src="/js/avatars-ui.js?v=2"></script>
+  <script src="/js/profile-hover.js?v=1"></script>
+  <script src="/js/rich-text-editor.js?v=1"></script>
+  <script src="/js/profile.js?v=2"></script>
+</body>
+</html>

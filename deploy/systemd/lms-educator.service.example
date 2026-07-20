@@ -1,0 +1,35 @@
+# LMS-Educator — unit systemd (exemple)
+# Remplacez USER, chemins Node et WorkingDirectory avant installation.
+# Documentation : https://git.aguilera.ch/Aguilera_Lab/Educator
+
+[Unit]
+Description=LMS-Educator Node.js application
+Documentation=https://git.aguilera.ch/Aguilera_Lab/Educator
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=lms
+Group=lms
+WorkingDirectory=/opt/Educator
+Environment=NODE_ENV=production
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+EnvironmentFile=-/opt/Educator/.env
+ExecStart=/usr/bin/node server.js
+Restart=always
+RestartSec=5
+TimeoutStartSec=30
+TimeoutStopSec=20
+KillMode=mixed
+Nice=0
+LimitNOFILE=65535
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=lms-educator
+SuccessExitStatus=0
+
+[Install]
+WantedBy=multi-user.target

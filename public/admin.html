@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="/images/favicon.png" data-app-favicon>
+  <title>Administration — LMS-Educator</title>
+  <link rel="stylesheet" href="/css/style.css?v=54">
+  <script src="/js/config.js?v=3"></script>
+  <script src="/js/i18n.js?v=2"></script>
+  <script src="/js/i18n-catalog.js?v=1"></script>
+</head>
+<body data-page-title-key="admin.title" data-page-title="Administration">
+  <header class="header">
+    <div class="container">
+      <a href="/" class="logo brand-logo">
+        <img src="/images/logo-emblem.svg" alt="" class="logo-emblem" data-app-logo-emblem aria-hidden="true">
+        <span class="logo-wordmark"><span class="logo-wordmark-lms">LMS</span><span class="logo-wordmark-educator">-Educator</span></span>
+      </a>
+      <nav>
+        <a href="/courses.html" id="nav-courses" data-i18n="nav.courses">Cours</a>
+        <a href="/dashboard.html" id="nav-dashboard" data-i18n="nav.dashboard">Tableau de bord</a>
+        <a href="/admin.html" id="nav-admin" data-i18n="nav.admin">Administration</a>
+        <span id="nav-user" class="nav-user"></span>
+        <a href="#" id="logout-btn" class="nav-logout" hidden data-i18n="nav.logout">Déconnexion</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container page admin-page">
+    <header class="page-header">
+      <div>
+        <h2 data-i18n="admin.title">Administration</h2>
+        <p class="muted page-header-sub" id="admin-panel-subtitle" data-i18n="admin.subtitle">Vue d'ensemble de la plateforme</p>
+      </div>
+      <div class="page-header-actions" id="admin-header-actions">
+        <button class="btn-primary" id="add-user-btn" type="button" data-i18n="admin.newUser">+ Nouvel utilisateur</button>
+      </div>
+    </header>
+
+    <p id="admin-loading" class="muted page-status" data-i18n="admin.loading">Chargement des données…</p>
+    <p id="admin-error" class="status error" hidden></p>
+
+    <div class="admin-shell">
+      <nav class="admin-subnav" aria-label="Sections administration">
+        <p class="admin-subnav-title" data-i18n="admin.menu">Menu</p>
+
+        <div class="admin-subnav-group">
+          <p class="admin-subnav-group-label" data-i18n="admin.group.general">Général</p>
+          <a href="#overview" class="admin-subnav-link is-active" data-admin-nav="overview">
+            <span data-i18n="admin.nav.overview">Vue d'ensemble</span>
+          </a>
+        </div>
+
+        <div class="admin-subnav-group">
+          <p class="admin-subnav-group-label" data-i18n="admin.group.communication">Communication</p>
+          <a href="#mail" class="admin-subnav-link" data-admin-nav="mail">
+            <span data-i18n="admin.nav.mail">Configuration e-mail</span>
+          </a>
+          <a href="#newsletter" class="admin-subnav-link" data-admin-nav="newsletter">
+            <span data-i18n="admin.nav.newsletter">Newsletter</span>
+          </a>
+        </div>
+
+        <div class="admin-subnav-group">
+          <p class="admin-subnav-group-label" data-i18n="admin.group.accounts">Comptes</p>
+          <a href="#learners-pending" class="admin-subnav-link" data-admin-nav="learners-pending">
+            <span data-i18n="admin.nav.learnersPending">Apprenants en attente</span>
+            <span class="admin-subnav-badge" data-admin-badge="learners-pending" hidden>0</span>
+          </a>
+          <a href="#instructors-pending" class="admin-subnav-link" data-admin-nav="instructors-pending">
+            <span data-i18n="admin.nav.instructorsPending">Formateurs en attente</span>
+            <span class="admin-subnav-badge" data-admin-badge="instructors-pending" hidden>0</span>
+          </a>
+          <a href="#users" class="admin-subnav-link" data-admin-nav="users">
+            <span data-i18n="admin.nav.users">Utilisateurs</span>
+          </a>
+        </div>
+
+        <div class="admin-subnav-group">
+          <p class="admin-subnav-group-label" data-i18n="admin.group.catalog">Catalogue</p>
+          <a href="#courses" class="admin-subnav-link" data-admin-nav="courses">
+            <span data-i18n="admin.nav.courses">Formations</span>
+          </a>
+        </div>
+      </nav>
+
+      <div class="admin-panels">
+        <section class="admin-panel is-active" id="admin-panel-overview" data-admin-panel="overview">
+          <div class="admin-panel-header">
+            <h3 data-i18n="admin.nav.overview">Vue d'ensemble</h3>
+            <p class="muted" data-i18n="admin.overview.hint">Indicateurs clés et accès rapide aux autres espaces.</p>
+          </div>
+          <section class="stats-grid" id="stats-grid"></section>
+          <div class="admin-quick-links" id="admin-quick-links">
+            <a href="#mail" class="card admin-quick-link" data-admin-nav="mail">
+              <strong data-i18n="admin.quick.mail">Configuration e-mail</strong>
+              <span class="muted" data-i18n="admin.quick.mailDesc">Microsoft 365 / Graph API</span>
+            </a>
+            <a href="#newsletter" class="card admin-quick-link" data-admin-nav="newsletter">
+              <strong data-i18n="admin.quick.newsletter">Newsletter</strong>
+              <span class="muted" data-i18n="admin.quick.newsletterDesc">Annoncer les nouvelles formations</span>
+            </a>
+            <a href="#users" class="card admin-quick-link" data-admin-nav="users">
+              <strong data-i18n="admin.quick.users">Utilisateurs</strong>
+              <span class="muted" data-i18n="admin.quick.usersDesc">Rôles, validations et inscriptions</span>
+            </a>
+            <a href="#courses" class="card admin-quick-link" data-admin-nav="courses">
+              <strong data-i18n="admin.quick.courses">Formations</strong>
+              <span class="muted" data-i18n="admin.quick.coursesDesc">Sessions et fréquentation</span>
+            </a>
+          </div>
+        </section>
+
+        <section class="admin-panel" id="admin-panel-mail" data-admin-panel="mail" hidden>
+          <div class="admin-panel-header">
+            <div class="section-header">
+              <h3>Configuration e-mail</h3>
+              <span id="mail-config-status" class="role-badge role-pending">Chargement…</span>
+            </div>
+            <p class="muted section-hint">Envoi via Microsoft 365 (Graph API). Seuls les administrateurs peuvent modifier ces paramètres.</p>
+          </div>
+          <form id="mail-config-form" class="card mail-config-form">
+            <label class="checkbox-row mail-config-enabled">
+              <input type="checkbox" id="mail-enabled" name="enabled" value="1">
+              <span>Activer l'envoi d'e-mails</span>
+            </label>
+            <div class="mail-config-grid">
+              <div class="field">
+                <label for="mail-tenant-id">Tenant ID Azure</label>
+                <input type="text" id="mail-tenant-id" name="tenant_id" autocomplete="off">
+              </div>
+              <div class="field">
+                <label for="mail-client-id">Client ID Azure</label>
+                <input type="text" id="mail-client-id" name="client_id" autocomplete="off">
+              </div>
+              <div class="field mail-config-field-full">
+                <label for="mail-client-secret">Secret client Azure</label>
+                <input type="password" id="mail-client-secret" name="client_secret" autocomplete="new-password" placeholder="Laisser vide pour conserver l'existant">
+                <p class="muted field-hint" id="mail-secret-hint"></p>
+              </div>
+              <div class="field">
+                <label for="mail-send-as">Boîte d'envoi (Send As)</label>
+                <input type="email" id="mail-send-as" name="send_as">
+              </div>
+              <div class="field">
+                <label for="mail-from">Adresse expéditeur</label>
+                <input type="email" id="mail-from" name="from">
+              </div>
+              <div class="field">
+                <label for="mail-from-name">Nom expéditeur</label>
+                <input type="text" id="mail-from-name" name="from_name">
+              </div>
+              <div class="field">
+                <label for="mail-app-name">Nom application (e-mails)</label>
+                <input type="text" id="mail-app-name" name="app_name">
+              </div>
+            </div>
+            <div class="mail-config-actions">
+              <button type="submit" class="btn-primary">Enregistrer la configuration</button>
+            </div>
+            <p id="mail-save-status" class="status" hidden></p>
+            <hr class="mail-config-divider">
+            <div class="mail-config-test">
+              <h4>Test d'envoi</h4>
+              <div class="mail-config-test-row">
+                <div class="field">
+                  <label for="mail-test-to">Adresse de destination</label>
+                  <input type="email" id="mail-test-to" placeholder="destinataire@exemple.ch">
+                </div>
+                <button type="button" class="btn-secondary" id="mail-test-btn">Envoyer un e-mail de test</button>
+              </div>
+              <p id="mail-test-status" class="status" hidden></p>
+            </div>
+          </form>
+        </section>
+
+        <section class="admin-panel" id="admin-panel-newsletter" data-admin-panel="newsletter" hidden>
+          <div class="admin-panel-header">
+            <div class="section-header">
+              <h3>Newsletter formations</h3>
+              <span id="newsletter-recipient-count" class="role-badge role-learner">— apprenants</span>
+            </div>
+            <p class="muted section-hint">Composez une newsletter présentant les nouveaux cours du catalogue, testez l'envoi, puis diffusez-la à tous les apprenants validés.</p>
+          </div>
+          <form id="newsletter-form" class="card newsletter-form">
+            <div class="field">
+              <label for="newsletter-subject">Objet de l'e-mail</label>
+              <input type="text" id="newsletter-subject" name="subject" required placeholder="Ex. Nouveautés formations — été 2026" maxlength="180">
+            </div>
+            <div class="field">
+              <label for="newsletter-intro-editor">Introduction</label>
+              <p class="muted field-hint">Mettez le texte en forme, ajoutez des liens et des images. Cliquez une image pour la redimensionner.</p>
+              <div class="rich-text-editor newsletter-intro-editor">
+                <div id="newsletter-intro-toolbar" class="rich-text-editor__toolbar">
+                  <button type="button" class="rich-text-editor__btn" data-command="bold" title="Gras"><strong>B</strong></button>
+                  <button type="button" class="rich-text-editor__btn" data-command="italic" title="Italique"><em>I</em></button>
+                  <button type="button" class="rich-text-editor__btn" data-command="underline" title="Souligné"><u>U</u></button>
+                  <button type="button" class="rich-text-editor__btn" data-command="insertUnorderedList" title="Liste à puces">• Liste</button>
+                  <button type="button" class="rich-text-editor__btn" data-command="insertOrderedList" title="Liste numérotée">1. Liste</button>
+                  <button type="button" class="rich-text-editor__btn" data-command="createLink" title="Ajouter un lien">Lien</button>
+                  <button type="button" class="rich-text-editor__btn" data-command="unlink" title="Supprimer le lien">Retirer lien</button>
+                  <label class="rich-text-editor__btn rich-text-editor__btn--file" title="Image depuis fichier">
+                    Image
+                    <input type="file" accept="image/*" data-image-upload hidden>
+                  </label>
+                  <button type="button" class="rich-text-editor__btn" data-command="insertImageUrl" title="Image par URL">Image URL</button>
+                </div>
+                <div
+                  id="newsletter-intro-editor"
+                  class="rich-text-editor__body"
+                  data-placeholder="Message d'ouverture adressé aux apprenants…"
+                ></div>
+              </div>
+              <input type="hidden" id="newsletter-intro" name="intro" value="">
+            </div>
+            <div class="field">
+              <label>Formations à mettre en avant</label>
+              <p class="muted field-hint">Cochez les cours du catalogue à inclure dans la newsletter.</p>
+              <div id="newsletter-course-list" class="newsletter-course-list"></div>
+            </div>
+            <div class="newsletter-actions">
+              <button type="button" class="btn-secondary" id="newsletter-preview-btn">Aperçu</button>
+              <button type="button" class="btn-secondary" id="newsletter-test-btn">Envoyer un test</button>
+              <button type="submit" class="btn-primary" id="newsletter-send-btn">Envoyer à tous les apprenants</button>
+            </div>
+            <div class="newsletter-test-row">
+              <div class="field">
+                <label for="newsletter-test-to">Adresse de test</label>
+                <input type="email" id="newsletter-test-to" placeholder="votre.email@exemple.ch">
+              </div>
+            </div>
+            <p id="newsletter-status" class="status" hidden></p>
+          </form>
+          <div id="newsletter-preview" class="card newsletter-preview" hidden>
+            <div class="section-header">
+              <h4>Aperçu HTML</h4>
+              <button type="button" class="btn-secondary btn-xs" id="newsletter-preview-close">Fermer</button>
+            </div>
+            <p id="newsletter-preview-subject" class="muted"></p>
+            <iframe id="newsletter-preview-frame" class="newsletter-preview-frame" title="Aperçu newsletter"></iframe>
+          </div>
+        </section>
+
+        <section class="admin-panel" id="admin-panel-learners-pending" data-admin-panel="learners-pending" hidden>
+          <div class="admin-panel-header">
+            <h3>Inscriptions apprenants en attente</h3>
+            <p class="muted section-hint">Validez le compte et assignez les formations que l'apprenant doit suivre.</p>
+          </div>
+          <div id="learner-pending-requests" class="admin-pending-list"></div>
+          <p id="learner-pending-empty" class="muted admin-empty-state" hidden>Aucune inscription apprenant en attente.</p>
+        </section>
+
+        <section class="admin-panel" id="admin-panel-instructors-pending" data-admin-panel="instructors-pending" hidden>
+          <div class="admin-panel-header">
+            <h3>Demandes formateur en attente</h3>
+            <p class="muted section-hint">Validez le compte, assignez les formations et choisissez les jours de session pour chaque cours.</p>
+          </div>
+          <div id="pending-requests" class="admin-pending-list"></div>
+          <p id="instructor-pending-empty" class="muted admin-empty-state" hidden>Aucune demande formateur en attente.</p>
+        </section>
+
+        <section class="admin-panel" id="admin-panel-users" data-admin-panel="users" hidden>
+          <div class="admin-panel-header">
+            <div class="section-header">
+              <h3>Utilisateurs</h3>
+              <button class="btn-primary btn-sm" id="add-user-btn-panel" type="button">+ Nouvel utilisateur</button>
+            </div>
+            <p id="roles-hint" class="muted section-hint">Les formateurs et apprenants en attente peuvent être validés depuis le tableau (bouton « Valider et assigner ») ou depuis les sections dédiées.</p>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table" id="users-table">
+              <thead>
+                <tr>
+                  <th class="col-name">Nom</th>
+                  <th class="col-email">Email</th>
+                  <th class="col-company">Entreprise</th>
+                  <th class="col-role">Rôle</th>
+                  <th class="col-status">Statut</th>
+                  <th class="col-count">Cours</th>
+                  <th class="col-count">Inscr.</th>
+                  <th class="col-actions">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="users-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="admin-panel" id="admin-panel-courses" data-admin-panel="courses" hidden>
+          <div class="admin-panel-header">
+            <div class="section-header">
+              <h3>Tous les cours</h3>
+              <button class="btn-primary btn-sm" id="add-course-btn" type="button">+ Nouvelle formation</button>
+            </div>
+            <p class="muted section-hint">Gérez le catalogue, les sessions et la fréquentation des formations.</p>
+          </div>
+          <div id="admin-courses" class="course-grid"></div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <div id="modal" class="modal" hidden>
+    <div class="modal-content card">
+      <h3 id="modal-title"></h3>
+      <form id="modal-form"></form>
+      <div class="form-actions" id="modal-actions">
+        <button type="submit" form="modal-form" class="btn-primary">Enregistrer</button>
+        <button type="button" class="btn-secondary" id="modal-cancel">Annuler</button>
+      </div>
+      <p id="modal-error" class="status error" hidden></p>
+    </div>
+  </div>
+
+  <script src="/js/avatars-ui.js?v=5"></script>
+  <script src="/js/profile-hover.js?v=1"></script>
+  <script src="/js/api.js?v=9"></script>
+  <script src="/js/sidebar.js?v=15"></script>
+  <script src="/js/sidebar-weather.js?v=4"></script>
+  <script src="/js/schedule-picker.js?v=5"></script>
+  <script src="/js/rich-text-editor.js?v=3"></script>
+  <script src="/js/admin.js?v=23"></script>
+  <script src="/js/admin-mail.js?v=2"></script>
+  <script src="/js/admin-newsletter.js?v=3"></script>
+</body>
+</html>

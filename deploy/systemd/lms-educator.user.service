@@ -1,0 +1,26 @@
+[Unit]
+Description=LMS-Educator Node.js application (user)
+After=network.target default.target
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+Type=simple
+WorkingDirectory=/home/lms/lms
+Environment=NODE_ENV=production
+Environment=PATH=/home/lms/.local/node/bin:/usr/local/bin:/usr/bin:/bin
+EnvironmentFile=-/home/lms/lms/.env
+ExecStartPre=/bin/bash -c 'test -x /home/lms/.local/node/bin/node'
+ExecStart=/home/lms/.local/node/bin/node server.js
+Restart=always
+RestartSec=5
+TimeoutStartSec=30
+TimeoutStopSec=20
+KillMode=mixed
+LimitNOFILE=65535
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=lms-educator
+
+[Install]
+WantedBy=default.target
