@@ -36,6 +36,7 @@
       'nav.login': 'Connexion',
       'nav.register': 'Inscription',
       'nav.logout': 'Déconnexion',
+      'nav.profile': 'Mon profil',
       'nav.createAccount': 'Créer un compte',
 
       'common.save': 'Enregistrer',
@@ -298,6 +299,7 @@
       'nav.login': 'Log in',
       'nav.register': 'Sign up',
       'nav.logout': 'Log out',
+      'nav.profile': 'My profile',
       'nav.createAccount': 'Create an account',
 
       'common.save': 'Save',
@@ -559,6 +561,7 @@
       'nav.login': 'Accedi',
       'nav.register': 'Registrati',
       'nav.logout': 'Esci',
+      'nav.profile': 'Il mio profilo',
       'nav.createAccount': 'Crea un account',
 
       'common.save': 'Salva',
@@ -820,6 +823,7 @@
       'nav.login': 'Iniciar sesión',
       'nav.register': 'Registrarse',
       'nav.logout': 'Cerrar sesión',
+      'nav.profile': 'Mi perfil',
       'nav.createAccount': 'Crear una cuenta',
 
       'common.save': 'Guardar',
@@ -1081,6 +1085,7 @@
       'nav.login': 'Anmelden',
       'nav.register': 'Registrieren',
       'nav.logout': 'Abmelden',
+      'nav.profile': 'Mein Profil',
       'nav.createAccount': 'Konto erstellen',
 
       'common.save': 'Speichern',
