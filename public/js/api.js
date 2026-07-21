@@ -383,11 +383,68 @@ function updateNav() {
   }
 }
 
+function ensureMobileMenuButton() {
+  if (document.getElementById('mobile-menu-btn')) return document.getElementById('mobile-menu-btn');
+  const container = document.querySelector('.header > .container');
+  if (!container) return null;
+
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.id = 'mobile-menu-btn';
+  btn.className = 'mobile-menu-btn';
+  btn.setAttribute('aria-expanded', 'false');
+  btn.setAttribute('aria-controls', 'app-sidebar');
+  btn.setAttribute('aria-label', 'Menu');
+  btn.innerHTML = '<span class="mobile-menu-btn-bars" aria-hidden="true"></span>';
+
+  const logo = container.querySelector('.logo, .brand-logo');
+  if (logo) container.insertBefore(btn, logo);
+  else container.prepend(btn);
+
+  btn.addEventListener('click', () => {
+    if (document.getElementById('app-sidebar')) {
+      if (typeof toggleMobileSidebar === 'function') toggleMobileSidebar();
+      else document.body.classList.toggle('sidebar-open');
+      btn.setAttribute('aria-expanded', document.body.classList.contains('sidebar-open') ? 'true' : 'false');
+      return;
+    }
+    document.body.classList.toggle('header-nav-open');
+    btn.setAttribute('aria-expanded', document.body.classList.contains('header-nav-open') ? 'true' : 'false');
+  });
+
+  return btn;
+}
+
+function initMobileNavigation() {
+  ensureMobileMenuButton();
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    document.body.classList.remove('header-nav-open');
+    if (typeof closeMobileSidebar === 'function') closeMobileSidebar();
+    else document.body.classList.remove('sidebar-open');
+    const btn = document.getElementById('mobile-menu-btn');
+    if (btn) btn.setAttribute('aria-expanded', 'false');
+  });
+
+  window.addEventListener('resize', () => {
+    if (window.matchMedia('(min-width: 961px)').matches) {
+      document.body.classList.remove('header-nav-open', 'sidebar-open');
+      const btn = document.getElementById('mobile-menu-btn');
+      if (btn) btn.setAttribute('aria-expanded', 'false');
+    }
+  });
+}
+
 function initNav() {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', updateNav);
-  } else {
+  const boot = () => {
     updateNav();
+    initMobileNavigation();
+  };
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
   }
 }
 

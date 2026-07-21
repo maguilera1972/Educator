@@ -497,6 +497,52 @@ function renderSidebarAvatar() {
   }
 }
 
+function closeMobileSidebar() {
+  document.body.classList.remove('sidebar-open');
+  const btn = document.getElementById('mobile-menu-btn');
+  if (btn) btn.setAttribute('aria-expanded', 'false');
+}
+
+function openMobileSidebar() {
+  document.body.classList.remove('header-nav-open');
+  document.body.classList.add('sidebar-open');
+  const btn = document.getElementById('mobile-menu-btn');
+  if (btn) btn.setAttribute('aria-expanded', 'true');
+}
+
+function toggleMobileSidebar() {
+  if (document.body.classList.contains('sidebar-open')) closeMobileSidebar();
+  else openMobileSidebar();
+}
+
+function ensureSidebarBackdrop() {
+  let backdrop = document.getElementById('sidebar-backdrop');
+  if (backdrop) return backdrop;
+  backdrop = document.createElement('div');
+  backdrop.id = 'sidebar-backdrop';
+  backdrop.className = 'sidebar-backdrop';
+  backdrop.setAttribute('aria-hidden', 'true');
+  backdrop.addEventListener('click', closeMobileSidebar);
+  document.body.appendChild(backdrop);
+  return backdrop;
+}
+
+function bindMobileSidebarControls() {
+  ensureSidebarBackdrop();
+  if (typeof ensureMobileMenuButton === 'function') {
+    ensureMobileMenuButton();
+  }
+
+  const aside = document.getElementById('app-sidebar');
+  if (!aside || aside.dataset.mobileNavBound === '1') return;
+  aside.dataset.mobileNavBound = '1';
+  aside.addEventListener('click', (e) => {
+    const link = e.target.closest('a.sidebar-nav-link');
+    if (!link) return;
+    if (window.matchMedia('(max-width: 960px)').matches) closeMobileSidebar();
+  });
+}
+
 function mountSidebar() {
   const main = document.querySelector('main');
   if (!main || document.getElementById('app-sidebar')) return;
@@ -531,6 +577,7 @@ function mountSidebar() {
   renderCourseList();
   if (typeof initSidebarWeather === 'function') initSidebarWeather();
   document.body.classList.add('has-app-shell');
+  bindMobileSidebarControls();
 }
 
 async function loadSidebarData() {
@@ -575,6 +622,7 @@ function remountSidebarContent() {
   renderCalendarGrid();
   renderCourseList();
   if (typeof initSidebarWeather === 'function') initSidebarWeather();
+  bindMobileSidebarControls();
 }
 
 async function initSidebar() {
