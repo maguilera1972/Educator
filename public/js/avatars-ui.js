@@ -25,9 +25,9 @@ function userChipHtml(user) {
   const label = typeof displayRoles === 'function' ? displayRoles(user) : user.role;
   const attrs = user.id ? ` class="nav-user-chip profile-hover-trigger" data-profile-user="${user.id}"` : ' class="nav-user-chip"';
   return `
-    <a href="/profile.html"${attrs}>
+    <a href="/profile.html"${attrs} title="${user.name} (${label})">
       ${avatarImgHtml(user, 'sm')}
-      <span>${user.name} (${label})</span>
+      <span class="nav-user-chip-label">${user.name} (${label})</span>
     </a>
   `;
 }

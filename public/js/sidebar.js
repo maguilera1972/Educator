@@ -414,6 +414,13 @@ function highlightSidebarNav() {
 
 function buildSidebarHtml() {
   const tr = (key, fallback) => (typeof t === 'function' ? t(key) : fallback);
+  const user = typeof API !== 'undefined' ? API.getUser() : null;
+  const isAdmin = user?.role === 'admin';
+  const accountLinks = `
+      <a href="/profile.html" class="sidebar-nav-link">${tr('nav.profile', 'Mon profil')}</a>
+      ${isAdmin ? `<a href="/admin.html" class="sidebar-nav-link">${tr('nav.admin', 'Administration')}</a>` : ''}
+      <button type="button" class="sidebar-nav-link sidebar-nav-link--button" id="sidebar-logout-btn">${tr('nav.logout', 'Déconnexion')}</button>
+  `;
   return `
     <div class="sidebar-top">
       <div class="sidebar-clock" aria-live="polite">
@@ -453,6 +460,7 @@ function buildSidebarHtml() {
       <a href="/dashboard.html" class="sidebar-nav-link">${tr('sidebar.dashboard', 'Tableau de bord')}</a>
       <a href="/courses.html" class="sidebar-nav-link">${tr('sidebar.catalog', 'Catalogue des cours')}</a>
       <a href="https://examinator.aguilera.ch/" class="sidebar-nav-link" target="_blank" rel="noopener noreferrer">${tr('sidebar.examSim', "Simulation d'examens")}</a>
+      ${accountLinks}
     </nav>
 
     <section class="sidebar-calendar-section" aria-label="${tr('sidebar.calendar', 'Calendrier des formations')}">
@@ -531,6 +539,14 @@ function bindMobileSidebarControls() {
   ensureSidebarBackdrop();
   if (typeof ensureMobileMenuButton === 'function') {
     ensureMobileMenuButton();
+  }
+
+  const logoutBtn = document.getElementById('sidebar-logout-btn');
+  if (logoutBtn && !logoutBtn.dataset.bound) {
+    logoutBtn.dataset.bound = '1';
+    logoutBtn.addEventListener('click', () => {
+      if (typeof API !== 'undefined') API.logout();
+    });
   }
 
   const aside = document.getElementById('app-sidebar');

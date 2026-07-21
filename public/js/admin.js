@@ -94,6 +94,11 @@ function showAdminPanel(panelId, { updateHash = true } = {}) {
     link.classList.toggle('is-active', link.dataset.adminNav === id);
   });
 
+  const mobileSelect = document.getElementById('admin-mobile-nav');
+  if (mobileSelect && mobileSelect.value !== id) {
+    mobileSelect.value = id;
+  }
+
   const subtitle = document.getElementById('admin-panel-subtitle');
   if (subtitle) subtitle.textContent = meta.title;
 
@@ -112,7 +117,47 @@ function showAdminPanel(panelId, { updateHash = true } = {}) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+function initAdminMobileNav() {
+  const subnav = document.querySelector('.admin-subnav');
+  if (!subnav || document.getElementById('admin-mobile-nav')) return;
+
+  const wrap = document.createElement('div');
+  wrap.className = 'admin-mobile-nav-wrap';
+  wrap.innerHTML = `
+    <label class="admin-mobile-nav-label" for="admin-mobile-nav">${typeof t === 'function' ? t('admin.menu') : 'Menu'}</label>
+    <select id="admin-mobile-nav" class="admin-mobile-nav" aria-label="${typeof t === 'function' ? t('admin.menu') : 'Menu administration'}"></select>
+  `;
+
+  const select = wrap.querySelector('select');
+  const groups = [...subnav.querySelectorAll('.admin-subnav-group')];
+  groups.forEach((group) => {
+    const label = group.querySelector('.admin-subnav-group-label')?.textContent?.trim() || '';
+    const links = [...group.querySelectorAll('[data-admin-nav]')];
+    if (!links.length) return;
+    const optgroup = document.createElement('optgroup');
+    optgroup.label = label || '—';
+    links.forEach((link) => {
+      const opt = document.createElement('option');
+      opt.value = link.dataset.adminNav;
+      const text = link.querySelector('span:not(.admin-subnav-badge)')?.textContent?.trim()
+        || link.textContent.trim();
+      opt.textContent = text;
+      optgroup.appendChild(opt);
+    });
+    select.appendChild(optgroup);
+  });
+
+  select.value = getAdminPanelId();
+  select.addEventListener('change', () => {
+    showAdminPanel(select.value);
+  });
+
+  subnav.parentNode.insertBefore(wrap, subnav);
+}
+
 function initAdminNavigation() {
+  initAdminMobileNav();
+
   document.querySelectorAll('[data-admin-nav]').forEach((link) => {
     link.addEventListener('click', (event) => {
       const panelId = link.dataset.adminNav;
