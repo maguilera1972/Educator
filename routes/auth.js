@@ -116,7 +116,7 @@ module.exports = function createAuthRouter(db) {
     }
 
     const publicUser = db.prepare(`SELECT ${USER_PUBLIC_COLUMNS} FROM users WHERE id = ?`).get(user.id);
-    const enriched = await enrichUserWithAvatar(publicUser, db);
+    const enriched = await enrichUserWithAvatar(publicUser, db, { forcePortalRefresh: true });
     const token = signToken(enriched);
     res.json({ user: enriched, token });
   });
@@ -130,7 +130,7 @@ module.exports = function createAuthRouter(db) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    const enriched = await enrichUserWithAvatar(user, db);
+    const enriched = await enrichUserWithAvatar(user, db, { forcePortalRefresh: true });
     const token = signToken(enriched);
     res.json({ user: enriched, token });
   });

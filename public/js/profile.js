@@ -17,20 +17,32 @@ async function uploadBioImage(file) {
 
 async function loadProfile() {
   profileData = await API.request('/api/profile/avatar');
-  const { user, gravatar_available, generics, profile_bio: profileBio } = profileData;
+  const {
+    user,
+    gravatar_available,
+    generics,
+    profile_bio: profileBio,
+    portal_available: portalAvailable,
+  } = profileData;
 
   document.getElementById('profile-name').textContent = user.name;
   document.getElementById('profile-email').textContent = user.email;
 
   const statusEl = document.getElementById('gravatar-status');
-  if (user.avatar_source === 'upload') {
-    statusEl.textContent = 'Using your uploaded photo';
+  if (user.avatar_source === 'portal') {
+    statusEl.textContent = 'Using your ALSO portal photo (synced by email)';
+    statusEl.className = 'status ok';
+  } else if (user.avatar_source === 'upload') {
+    statusEl.textContent = 'Using your LMS-uploaded photo';
+    statusEl.className = 'status ok';
+  } else if (portalAvailable) {
+    statusEl.textContent = 'Portal photo available — select Portal photo or Automatic to use it';
     statusEl.className = 'status ok';
   } else if (gravatar_available) {
     statusEl.textContent = 'Gravatar detected for your email';
     statusEl.className = 'status ok';
   } else {
-    statusEl.textContent = 'No Gravatar found — upload a photo or choose a generic avatar below';
+    statusEl.textContent = 'No portal photo yet — upload on the ALSO portal, or use LMS upload / Gravatar below';
     statusEl.className = 'status';
   }
 
@@ -49,6 +61,11 @@ async function loadProfile() {
   document.querySelectorAll('input[name="avatar_mode"]').forEach((input) => {
     input.checked = input.value === mode;
   });
+
+  const portalRadio = document.querySelector('input[name="avatar_mode"][value="portal"]');
+  if (portalRadio) {
+    portalRadio.disabled = !portalAvailable && !user.portal_has_avatar;
+  }
 
   const uploadRadio = document.querySelector('input[name="avatar_mode"][value="upload"]');
   if (uploadRadio) {

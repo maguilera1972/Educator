@@ -43,13 +43,17 @@
       <div class="profile-options">
         <h4 data-i18n="profile.avatarSource">Avatar source</h4>
         <div class="avatar-mode-options">
-          <label class="radio-card">
-            <input type="radio" name="avatar_mode" value="upload">
-            <span><strong>Uploaded photo</strong><span> — Use a photo you upload below</span></span>
+          <label class="radio-card" id="portal-avatar-option">
+            <input type="radio" name="avatar_mode" value="portal">
+            <span><strong>Portal photo</strong><span> — Same photo as on the ALSO portal (synced by email)</span></span>
           </label>
           <label class="radio-card">
             <input type="radio" name="avatar_mode" value="auto" checked>
-            <span><strong data-i18n="profile.modeAuto">Automatic</strong><span data-i18n="profile.modeAutoDesc"> — Gravatar if available, otherwise a generic avatar</span></span>
+            <span><strong data-i18n="profile.modeAuto">Automatic</strong><span> — Portal photo if available, then LMS upload, then Gravatar / generic</span></span>
+          </label>
+          <label class="radio-card">
+            <input type="radio" name="avatar_mode" value="upload">
+            <span><strong>LMS uploaded photo</strong><span> — Use a photo you upload below (overrides portal in Automatic)</span></span>
           </label>
           <label class="radio-card">
             <input type="radio" name="avatar_mode" value="gravatar">
@@ -63,8 +67,8 @@
       </div>
 
       <div class="profile-upload">
-        <h4>Upload a photo</h4>
-        <p class="muted">JPEG, PNG, GIF or WebP — max 5&nbsp;MB. The photo is saved as your avatar when you upload.</p>
+        <h4>Upload a photo (LMS only)</h4>
+        <p class="muted">Optional fallback. Prefer uploading on the ALSO portal so LMS, Exam and GitLab stay in sync. JPEG, PNG, GIF or WebP — max 5&nbsp;MB.</p>
         <div class="form-actions" style="align-items:center;gap:0.75rem;flex-wrap:wrap">
           <label class="btn-secondary" for="avatar-file-input" style="cursor:pointer;margin:0">
             Choose photo
@@ -125,6 +129,6 @@
   <script src="/js/avatars-ui.js?v=5"></script>
   <script src="/js/profile-hover.js?v=1"></script>
   <script src="/js/rich-text-editor.js?v=1"></script>
-  <script src="/js/profile.js?v=4"></script>
+  <script src="/js/profile.js?v=5"></script>
 </body>
 </html>

@@ -109,8 +109,17 @@ function migrate(db) {
   if (!userColumns.includes('profile_bio')) {
     db.exec("ALTER TABLE users ADD COLUMN profile_bio TEXT NOT NULL DEFAULT ''");
   }
+  if (!userColumns.includes('portal_has_avatar')) {
+    db.exec('ALTER TABLE users ADD COLUMN portal_has_avatar INTEGER');
+  }
+  if (!userColumns.includes('portal_avatar_url')) {
+    db.exec("ALTER TABLE users ADD COLUMN portal_avatar_url TEXT NOT NULL DEFAULT ''");
+  }
+  if (!userColumns.includes('portal_avatar_checked_at')) {
+    db.exec('ALTER TABLE users ADD COLUMN portal_avatar_checked_at TEXT');
+  }
 
-  // Allow avatar_mode = 'upload' on DBs created with the older CHECK constraint.
+  // Expand avatar_mode CHECK to include upload + portal when missing.
   // Also recover if a previous run left users_avatar_mig behind after a crash.
   const orphanAvatarMig = db.prepare(
     "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'users_avatar_mig'"
@@ -129,11 +138,10 @@ function migrate(db) {
   const usersTableSql = db.prepare(
     "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'users'"
   ).get()?.sql || '';
-  if (
-    usersTableSql.includes('avatar_mode')
-    && usersTableSql.includes("IN ('auto', 'gravatar', 'generic')")
-    && !usersTableSql.includes("'upload'")
-  ) {
+  const needsAvatarModeExpand = usersTableSql.includes('avatar_mode')
+    && usersTableSql.includes('CHECK')
+    && !usersTableSql.includes("'portal'");
+  if (needsAvatarModeExpand) {
     // Child tables reference users — must disable FK checks for the rebuild.
     db.pragma('foreign_keys = OFF');
     db.exec('BEGIN');
@@ -148,10 +156,13 @@ function migrate(db) {
           role TEXT NOT NULL DEFAULT 'learner' CHECK (role IN ('learner', 'instructor', 'admin')),
           approved INTEGER NOT NULL DEFAULT 1,
           is_instructor INTEGER NOT NULL DEFAULT 0,
-          avatar_mode TEXT NOT NULL DEFAULT 'auto' CHECK (avatar_mode IN ('auto', 'gravatar', 'generic', 'upload')),
+          avatar_mode TEXT NOT NULL DEFAULT 'auto' CHECK (avatar_mode IN ('auto', 'gravatar', 'generic', 'upload', 'portal')),
           avatar_generic_id INTEGER NOT NULL DEFAULT 0,
           gravatar_available INTEGER,
           avatar_filename TEXT NOT NULL DEFAULT '',
+          portal_has_avatar INTEGER,
+          portal_avatar_url TEXT NOT NULL DEFAULT '',
+          portal_avatar_checked_at TEXT,
           profile_bio TEXT NOT NULL DEFAULT '',
           company TEXT NOT NULL DEFAULT '',
           created_at TEXT NOT NULL DEFAULT (datetime('now'))
@@ -159,12 +170,16 @@ function migrate(db) {
         INSERT INTO users_avatar_mig (
           id, email, password_hash, name, role, approved, is_instructor,
           avatar_mode, avatar_generic_id, gravatar_available, avatar_filename,
+          portal_has_avatar, portal_avatar_url, portal_avatar_checked_at,
           profile_bio, company, created_at
         )
         SELECT
           id, email, password_hash, name, role, approved, is_instructor,
           avatar_mode, avatar_generic_id, gravatar_available,
           COALESCE(avatar_filename, ''),
+          portal_has_avatar,
+          COALESCE(portal_avatar_url, ''),
+          portal_avatar_checked_at,
           COALESCE(profile_bio, ''), COALESCE(company, ''), created_at
         FROM users;
         DROP TABLE users;

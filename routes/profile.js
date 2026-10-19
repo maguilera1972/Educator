@@ -27,10 +27,9 @@ module.exports = function createProfileRouter(db) {
     const user = db.prepare(`SELECT ${USER_PUBLIC_COLUMNS}, profile_bio FROM users WHERE id = ?`).get(req.user.id);
     if (!user) return res.status(404).json({ error: 'User not found' });
 
-    const enriched = await enrichUserWithAvatar(user, db);
-    // Prefer cached flag; only probe Gravatar when unknown (avoids blocking upload UX)
+    const enriched = await enrichUserWithAvatar(user, db, { forcePortalRefresh: true });
     let hasGravatar = enriched.gravatar_available;
-    if (user.gravatar_available == null) {
+    if (user.gravatar_available == null && !enriched.portal_has_avatar) {
       hasGravatar = await gravatarExists(user.email);
       db.prepare('UPDATE users SET gravatar_available = ? WHERE id = ?').run(
         hasGravatar ? 1 : 0,
@@ -43,6 +42,8 @@ module.exports = function createProfileRouter(db) {
       profile_bio: user.profile_bio || '',
       gravatar_available: !!hasGravatar,
       gravatar_url: gravatarUrl(user.email),
+      portal_available: !!enriched.portal_has_avatar,
+      portal_avatar_url: enriched.portal_avatar_url || null,
       generics: GENERIC_AVATARS.map((g) => ({
         ...g,
         url: genericAvatarUrl(g.id),
@@ -52,7 +53,7 @@ module.exports = function createProfileRouter(db) {
 
   router.put('/avatar', authRequired, async (req, res) => {
     const { avatar_mode, avatar_generic_id } = req.body;
-    const allowedModes = ['auto', 'gravatar', 'generic', 'upload'];
+    const allowedModes = ['auto', 'gravatar', 'generic', 'upload', 'portal'];
     const mode = allowedModes.includes(avatar_mode) ? avatar_mode : 'auto';
     const genericId = Math.max(0, Math.min(11, parseInt(avatar_generic_id, 10) || 0));
 
@@ -61,6 +62,11 @@ module.exports = function createProfileRouter(db) {
 
     if (mode === 'upload' && !String(user.avatar_filename || '').trim()) {
       return res.status(400).json({ error: 'Upload a photo before selecting the uploaded avatar source' });
+    }
+
+    const enrichedProbe = await enrichUserWithAvatar(user, db, { forcePortalRefresh: true });
+    if (mode === 'portal' && !enrichedProbe.portal_has_avatar) {
+      return res.status(400).json({ error: 'No portal photo found for your email. Upload one on the ALSO portal profile first.' });
     }
 
     let gravatarAvailable = user.gravatar_available;
@@ -73,7 +79,7 @@ module.exports = function createProfileRouter(db) {
     ).run(mode, genericId, gravatarAvailable, user.id);
 
     const updated = db.prepare(`SELECT ${USER_PUBLIC_COLUMNS} FROM users WHERE id = ?`).get(user.id);
-    const enriched = await enrichUserWithAvatar(updated, db);
+    const enriched = await enrichUserWithAvatar(updated, db, { forcePortalRefresh: true });
 
     res.json({ user: enriched });
   });
