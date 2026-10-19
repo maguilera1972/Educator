@@ -35,8 +35,14 @@ async function loadProfile() {
   }
 
   const current = document.getElementById('current-avatar');
-  current.src = user.avatar_url;
-  current.dataset.fallback = user.gravatar_fallback || generics[0]?.url || '/avatars/generic-0.svg';
+  const fallback = user.gravatar_fallback || generics[0]?.url || '/avatars/generic-0.svg';
+  current.dataset.fallback = fallback;
+  current.onerror = () => {
+    if (current.dataset.fallback && current.src !== current.dataset.fallback) {
+      current.src = current.dataset.fallback;
+    }
+  };
+  current.src = user.avatar_url || fallback;
 
   selectedGenericId = user.avatar_generic_id ?? 0;
   const mode = user.avatar_mode || 'auto';
@@ -106,6 +112,11 @@ document.getElementById('upload-avatar-btn').addEventListener('click', async () 
     return;
   }
 
+  const uploadBtn = document.getElementById('upload-avatar-btn');
+  uploadBtn.disabled = true;
+  const prevLabel = uploadBtn.textContent;
+  uploadBtn.textContent = 'Uploading…';
+
   try {
     const fd = new FormData();
     fd.append('file', selectedAvatarFile);
@@ -115,10 +126,22 @@ document.getElementById('upload-avatar-btn').addEventListener('click', async () 
     });
     API.setUser(user);
     updateNav();
+
+    // Show the new photo immediately (do not wait on follow-up profile reload)
+    const current = document.getElementById('current-avatar');
+    if (user.avatar_url) {
+      current.onerror = null;
+      current.src = user.avatar_url;
+    }
+    const uploadRadio = document.querySelector('input[name="avatar_mode"][value="upload"]');
+    if (uploadRadio) {
+      uploadRadio.disabled = false;
+      uploadRadio.checked = true;
+    }
+
     selectedAvatarFile = null;
     document.getElementById('avatar-file-input').value = '';
     document.getElementById('avatar-file-name').textContent = '';
-    document.getElementById('upload-avatar-btn').disabled = true;
     statusEl.textContent = 'Photo uploaded and set as your avatar';
     statusEl.className = 'status ok';
     statusEl.hidden = false;
@@ -127,6 +150,10 @@ document.getElementById('upload-avatar-btn').addEventListener('click', async () 
     statusEl.textContent = err.message;
     statusEl.className = 'status error';
     statusEl.hidden = false;
+    uploadBtn.disabled = !selectedAvatarFile;
+  } finally {
+    uploadBtn.textContent = prevLabel;
+    if (!selectedAvatarFile) uploadBtn.disabled = true;
   }
 });
 

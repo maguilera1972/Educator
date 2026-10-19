@@ -28,12 +28,20 @@ module.exports = function createProfileRouter(db) {
     if (!user) return res.status(404).json({ error: 'User not found' });
 
     const enriched = await enrichUserWithAvatar(user, db);
-    const hasGravatar = await gravatarExists(user.email);
+    // Prefer cached flag; only probe Gravatar when unknown (avoids blocking upload UX)
+    let hasGravatar = enriched.gravatar_available;
+    if (user.gravatar_available == null) {
+      hasGravatar = await gravatarExists(user.email);
+      db.prepare('UPDATE users SET gravatar_available = ? WHERE id = ?').run(
+        hasGravatar ? 1 : 0,
+        user.id
+      );
+    }
 
     res.json({
-      user: enriched,
+      user: { ...enriched, gravatar_available: !!hasGravatar },
       profile_bio: user.profile_bio || '',
-      gravatar_available: hasGravatar,
+      gravatar_available: !!hasGravatar,
       gravatar_url: gravatarUrl(user.email),
       generics: GENERIC_AVATARS.map((g) => ({
         ...g,
@@ -98,7 +106,9 @@ module.exports = function createProfileRouter(db) {
     });
   });
 
-  router.get('/:userId/avatar/file', authRequired, (req, res) => {
+  // Public like bio images: <img> cannot send Bearer tokens. Access is scoped to the
+  // filename currently stored for that user (random hex name).
+  router.get('/:userId/avatar/file', (req, res) => {
     const userId = parseInt(req.params.userId, 10);
     if (!userId) return res.status(400).json({ error: 'Invalid user' });
 
@@ -107,12 +117,18 @@ module.exports = function createProfileRouter(db) {
       return res.status(404).json({ error: 'Avatar not found' });
     }
 
+    // Optional ?v= cache-buster must match the stored filename when provided
+    const bust = String(req.query.v || '').trim();
+    if (bust && bust !== user.avatar_filename) {
+      return res.status(404).json({ error: 'Avatar not found' });
+    }
+
     const filePath = resolveProfileAvatarPath(userId, user.avatar_filename);
     if (!filePath || !fs.existsSync(filePath)) {
       return res.status(404).json({ error: 'Avatar file not found' });
     }
 
-    res.setHeader('Cache-Control', 'private, max-age=3600');
+    res.setHeader('Cache-Control', 'public, max-age=3600');
     res.sendFile(path.resolve(filePath));
   });
 
