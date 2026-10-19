@@ -80,6 +80,8 @@ a.logo,
   height: 2.9rem;
   width: auto;
   flex-shrink: 0;
+  background: transparent;
+  object-fit: contain;
 }
 
 .logo-wordmark {
@@ -3605,9 +3607,12 @@ a:hover { color: var(--also-teal); }
   border-color: color-mix(in srgb, var(--also-orange) 40%, var(--border));
 }
 .brand-logo .logo-emblem,
-.auth-logo .logo-emblem {
-  /* Keep ALSO mark readable; subtle black plate behind multicolor logo */
-  background: var(--also-black);
-  border-radius: 0.35rem;
-  padding: 0.2rem 0.28rem;
+.auth-logo .logo-emblem,
+.logo-img,
+.auth-logo-img {
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  object-fit: contain;
+  object-position: left center;
 }
