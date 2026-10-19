@@ -3,6 +3,7 @@ if (!requireAuth()) throw new Error();
 let profileData = null;
 let selectedGenericId = 0;
 let bioEditor = null;
+let selectedAvatarFile = null;
 
 async function uploadBioImage(file) {
   const fd = new FormData();
@@ -22,11 +23,14 @@ async function loadProfile() {
   document.getElementById('profile-email').textContent = user.email;
 
   const statusEl = document.getElementById('gravatar-status');
-  if (gravatar_available) {
+  if (user.avatar_source === 'upload') {
+    statusEl.textContent = 'Using your uploaded photo';
+    statusEl.className = 'status ok';
+  } else if (gravatar_available) {
     statusEl.textContent = 'Gravatar detected for your email';
     statusEl.className = 'status ok';
   } else {
-    statusEl.textContent = 'No Gravatar found — choose a generic avatar below';
+    statusEl.textContent = 'No Gravatar found — upload a photo or choose a generic avatar below';
     statusEl.className = 'status';
   }
 
@@ -35,9 +39,15 @@ async function loadProfile() {
   current.dataset.fallback = user.gravatar_fallback || generics[0]?.url || '/avatars/generic-0.svg';
 
   selectedGenericId = user.avatar_generic_id ?? 0;
+  const mode = user.avatar_mode || 'auto';
   document.querySelectorAll('input[name="avatar_mode"]').forEach((input) => {
-    input.checked = input.value === (user.avatar_mode || 'auto');
+    input.checked = input.value === mode;
   });
+
+  const uploadRadio = document.querySelector('input[name="avatar_mode"][value="upload"]');
+  if (uploadRadio) {
+    uploadRadio.disabled = !user.avatar_filename;
+  }
 
   const grid = document.getElementById('generic-grid');
   grid.innerHTML = generics.map((g) => `
@@ -77,6 +87,48 @@ function updateBioPreview(html) {
   wrap.hidden = !hasContent;
   preview.innerHTML = html || '';
 }
+
+document.getElementById('avatar-file-input').addEventListener('change', (e) => {
+  const file = e.target.files?.[0] || null;
+  selectedAvatarFile = file;
+  document.getElementById('avatar-file-name').textContent = file ? file.name : '';
+  document.getElementById('upload-avatar-btn').disabled = !file;
+  document.getElementById('upload-status').hidden = true;
+});
+
+document.getElementById('upload-avatar-btn').addEventListener('click', async () => {
+  const statusEl = document.getElementById('upload-status');
+  statusEl.hidden = true;
+  if (!selectedAvatarFile) {
+    statusEl.textContent = 'Choose a photo first';
+    statusEl.className = 'status error';
+    statusEl.hidden = false;
+    return;
+  }
+
+  try {
+    const fd = new FormData();
+    fd.append('file', selectedAvatarFile);
+    const { user } = await API.request('/api/profile/avatar/upload', {
+      method: 'POST',
+      body: fd,
+    });
+    API.setUser(user);
+    updateNav();
+    selectedAvatarFile = null;
+    document.getElementById('avatar-file-input').value = '';
+    document.getElementById('avatar-file-name').textContent = '';
+    document.getElementById('upload-avatar-btn').disabled = true;
+    statusEl.textContent = 'Photo uploaded and set as your avatar';
+    statusEl.className = 'status ok';
+    statusEl.hidden = false;
+    await loadProfile();
+  } catch (err) {
+    statusEl.textContent = err.message;
+    statusEl.className = 'status error';
+    statusEl.hidden = false;
+  }
+});
 
 document.getElementById('save-avatar').addEventListener('click', async () => {
   const mode = document.querySelector('input[name="avatar_mode"]:checked')?.value || 'auto';

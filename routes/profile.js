@@ -15,6 +15,9 @@ const {
   profileBioUpload,
   profileBioImageUrl,
   resolveProfileBioImagePath,
+  profileAvatarUpload,
+  resolveProfileAvatarPath,
+  deleteStoredFile,
 } = require('../lib/uploads');
 
 module.exports = function createProfileRouter(db) {
@@ -41,12 +44,16 @@ module.exports = function createProfileRouter(db) {
 
   router.put('/avatar', authRequired, async (req, res) => {
     const { avatar_mode, avatar_generic_id } = req.body;
-    const allowedModes = ['auto', 'gravatar', 'generic'];
+    const allowedModes = ['auto', 'gravatar', 'generic', 'upload'];
     const mode = allowedModes.includes(avatar_mode) ? avatar_mode : 'auto';
     const genericId = Math.max(0, Math.min(11, parseInt(avatar_generic_id, 10) || 0));
 
     const user = db.prepare(`SELECT ${USER_PUBLIC_COLUMNS} FROM users WHERE id = ?`).get(req.user.id);
     if (!user) return res.status(404).json({ error: 'User not found' });
+
+    if (mode === 'upload' && !String(user.avatar_filename || '').trim()) {
+      return res.status(400).json({ error: 'Upload a photo before selecting the uploaded avatar source' });
+    }
 
     let gravatarAvailable = user.gravatar_available;
     if (mode === 'auto' || mode === 'gravatar') {
@@ -61,6 +68,52 @@ module.exports = function createProfileRouter(db) {
     const enriched = await enrichUserWithAvatar(updated, db);
 
     res.json({ user: enriched });
+  });
+
+  router.post('/avatar/upload', authRequired, (req, res) => {
+    profileAvatarUpload.single('file')(req, res, async (err) => {
+      if (err) {
+        return res.status(400).json({ error: err.message || 'Upload failed' });
+      }
+      if (!req.file) {
+        return res.status(400).json({ error: 'No file received' });
+      }
+
+      const user = db.prepare(`SELECT ${USER_PUBLIC_COLUMNS} FROM users WHERE id = ?`).get(req.user.id);
+      if (!user) return res.status(404).json({ error: 'User not found' });
+
+      const previous = String(user.avatar_filename || '').trim();
+      if (previous && previous !== req.file.filename) {
+        const oldPath = resolveProfileAvatarPath(req.user.id, previous);
+        if (oldPath) deleteStoredFile(oldPath);
+      }
+
+      db.prepare(
+        "UPDATE users SET avatar_filename = ?, avatar_mode = 'upload' WHERE id = ?"
+      ).run(req.file.filename, req.user.id);
+
+      const updated = db.prepare(`SELECT ${USER_PUBLIC_COLUMNS} FROM users WHERE id = ?`).get(req.user.id);
+      const enriched = await enrichUserWithAvatar(updated, db);
+      res.status(201).json({ user: enriched, filename: req.file.filename });
+    });
+  });
+
+  router.get('/:userId/avatar/file', authRequired, (req, res) => {
+    const userId = parseInt(req.params.userId, 10);
+    if (!userId) return res.status(400).json({ error: 'Invalid user' });
+
+    const user = db.prepare('SELECT id, avatar_filename FROM users WHERE id = ?').get(userId);
+    if (!user || !user.avatar_filename) {
+      return res.status(404).json({ error: 'Avatar not found' });
+    }
+
+    const filePath = resolveProfileAvatarPath(userId, user.avatar_filename);
+    if (!filePath || !fs.existsSync(filePath)) {
+      return res.status(404).json({ error: 'Avatar file not found' });
+    }
+
+    res.setHeader('Cache-Control', 'private, max-age=3600');
+    res.sendFile(path.resolve(filePath));
   });
 
   router.get('/bio', authRequired, (req, res) => {

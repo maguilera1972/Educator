@@ -6,9 +6,10 @@ CREATE TABLE IF NOT EXISTS users (
   role TEXT NOT NULL DEFAULT 'learner' CHECK (role IN ('learner', 'instructor', 'admin')),
   approved INTEGER NOT NULL DEFAULT 1,
   is_instructor INTEGER NOT NULL DEFAULT 0,
-  avatar_mode TEXT NOT NULL DEFAULT 'auto' CHECK (avatar_mode IN ('auto', 'gravatar', 'generic')),
+  avatar_mode TEXT NOT NULL DEFAULT 'auto' CHECK (avatar_mode IN ('auto', 'gravatar', 'generic', 'upload')),
   avatar_generic_id INTEGER NOT NULL DEFAULT 0,
   gravatar_available INTEGER,
+  avatar_filename TEXT NOT NULL DEFAULT '',
   profile_bio TEXT NOT NULL DEFAULT '',
   company TEXT NOT NULL DEFAULT '',
   created_at TEXT NOT NULL DEFAULT (datetime('now'))

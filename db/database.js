@@ -103,8 +103,80 @@ function migrate(db) {
   if (!userColumns.includes('gravatar_available')) {
     db.exec('ALTER TABLE users ADD COLUMN gravatar_available INTEGER');
   }
+  if (!userColumns.includes('avatar_filename')) {
+    db.exec("ALTER TABLE users ADD COLUMN avatar_filename TEXT NOT NULL DEFAULT ''");
+  }
   if (!userColumns.includes('profile_bio')) {
     db.exec("ALTER TABLE users ADD COLUMN profile_bio TEXT NOT NULL DEFAULT ''");
+  }
+
+  // Allow avatar_mode = 'upload' on DBs created with the older CHECK constraint.
+  // Also recover if a previous run left users_avatar_mig behind after a crash.
+  const orphanAvatarMig = db.prepare(
+    "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'users_avatar_mig'"
+  ).get();
+  if (orphanAvatarMig) {
+    const usersStillPresent = db.prepare(
+      "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'users'"
+    ).get();
+    if (usersStillPresent) {
+      db.exec('DROP TABLE IF EXISTS users_avatar_mig');
+    } else {
+      db.exec('ALTER TABLE users_avatar_mig RENAME TO users');
+    }
+  }
+
+  const usersTableSql = db.prepare(
+    "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'users'"
+  ).get()?.sql || '';
+  if (
+    usersTableSql.includes('avatar_mode')
+    && usersTableSql.includes("IN ('auto', 'gravatar', 'generic')")
+    && !usersTableSql.includes("'upload'")
+  ) {
+    // Child tables reference users — must disable FK checks for the rebuild.
+    db.pragma('foreign_keys = OFF');
+    db.exec('BEGIN');
+    try {
+      db.exec('DROP TABLE IF EXISTS users_avatar_mig');
+      db.exec(`
+        CREATE TABLE users_avatar_mig (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          email TEXT UNIQUE NOT NULL,
+          password_hash TEXT NOT NULL,
+          name TEXT NOT NULL,
+          role TEXT NOT NULL DEFAULT 'learner' CHECK (role IN ('learner', 'instructor', 'admin')),
+          approved INTEGER NOT NULL DEFAULT 1,
+          is_instructor INTEGER NOT NULL DEFAULT 0,
+          avatar_mode TEXT NOT NULL DEFAULT 'auto' CHECK (avatar_mode IN ('auto', 'gravatar', 'generic', 'upload')),
+          avatar_generic_id INTEGER NOT NULL DEFAULT 0,
+          gravatar_available INTEGER,
+          avatar_filename TEXT NOT NULL DEFAULT '',
+          profile_bio TEXT NOT NULL DEFAULT '',
+          company TEXT NOT NULL DEFAULT '',
+          created_at TEXT NOT NULL DEFAULT (datetime('now'))
+        );
+        INSERT INTO users_avatar_mig (
+          id, email, password_hash, name, role, approved, is_instructor,
+          avatar_mode, avatar_generic_id, gravatar_available, avatar_filename,
+          profile_bio, company, created_at
+        )
+        SELECT
+          id, email, password_hash, name, role, approved, is_instructor,
+          avatar_mode, avatar_generic_id, gravatar_available,
+          COALESCE(avatar_filename, ''),
+          COALESCE(profile_bio, ''), COALESCE(company, ''), created_at
+        FROM users;
+        DROP TABLE users;
+        ALTER TABLE users_avatar_mig RENAME TO users;
+      `);
+      db.exec('COMMIT');
+    } catch (err) {
+      db.exec('ROLLBACK');
+      throw err;
+    } finally {
+      db.pragma('foreign_keys = ON');
+    }
   }
 
   const courseColumns = db.prepare('PRAGMA table_info(courses)').all().map((c) => c.name);
