@@ -77,7 +77,7 @@ a.logo,
 
 .logo-emblem {
   display: block;
-  height: 2.9rem;
+  height: 3.4rem;
   width: auto;
   flex-shrink: 0;
   background: transparent;
@@ -89,7 +89,7 @@ a.logo,
   align-items: baseline;
   font-family: 'Montserrat', system-ui, sans-serif;
   font-weight: 700;
-  font-size: clamp(1.35rem, 2.3vw, 1.85rem);
+  font-size: clamp(1.5rem, 2.5vw, 2.05rem);
   letter-spacing: -0.02em;
   white-space: nowrap;
 }
@@ -104,7 +104,7 @@ a.logo,
 
 .logo-img {
   display: block;
-  height: 2.9rem;
+  height: 3.4rem;
   width: auto;
   max-width: none;
   object-fit: contain;
@@ -424,11 +424,11 @@ nav a.active {
 }
 
 .auth-logo .logo-emblem {
-  height: 3.6rem;
+  height: 4.2rem;
 }
 
 .auth-logo .logo-wordmark {
-  font-size: clamp(1.65rem, 4.2vw, 2.15rem);
+  font-size: clamp(1.85rem, 4.4vw, 2.35rem);
 }
 
 body[data-page-title="Login"] .auth-logo {
@@ -436,16 +436,16 @@ body[data-page-title="Login"] .auth-logo {
 }
 
 body[data-page-title="Login"] .auth-logo .logo-emblem {
-  height: 4.5rem;
+  height: 5.25rem;
 }
 
 body[data-page-title="Login"] .auth-logo .logo-wordmark {
-  font-size: clamp(2rem, 5.2vw, 2.55rem);
+  font-size: clamp(2.2rem, 5.4vw, 2.8rem);
 }
 
 .auth-logo-img {
   display: block;
-  height: 3.9rem;
+  height: 4.5rem;
   width: auto;
   max-width: min(320px, 90vw);
   object-fit: contain;
@@ -1856,7 +1856,7 @@ body.has-app-shell .app-shell {
 }
 
 .sidebar-logo .logo-emblem {
-  height: 2.2rem;
+  height: 2.6rem;
 }
 
 .sidebar-logo .logo-wordmark {
@@ -2851,7 +2851,7 @@ body.sidebar-open .mobile-menu-btn-bars::after {
   }
 
   .header .logo-emblem {
-    height: 1.9rem;
+    height: 2.3rem;
   }
 
   body.has-app-shell .header nav {
