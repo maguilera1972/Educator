@@ -460,6 +460,7 @@ function buildSidebarHtml() {
       <a href="/dashboard.html" class="sidebar-nav-link">${tr('sidebar.dashboard', 'Dashboard')}</a>
       <a href="/courses.html" class="sidebar-nav-link">${tr('sidebar.catalog', 'Course catalog')}</a>
       <a href="https://also-examsim.eureka-training.online/" class="sidebar-nav-link">${tr('sidebar.examSim', 'Exam simulation')}</a>
+      <a href="https://also.eureka-training.online/feedback" class="sidebar-nav-link" target="_blank" rel="noopener noreferrer">${tr('sidebar.feedback', 'Feedback')}</a>
       ${accountLinks}
     </nav>
 

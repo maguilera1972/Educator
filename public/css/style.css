@@ -235,6 +235,10 @@ nav a.active {
 
 .nav-logout:hover { color: var(--primary); }
 
+.nav-feedback {
+  white-space: nowrap;
+}
+
 .page { padding: 0; }
 
 .page-header {
