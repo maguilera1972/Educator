@@ -41,7 +41,7 @@ function seedMicrosoftCourses(db) {
   }
 
   if (created > 0) {
-    console.log(`Catalogue Microsoft : ${created} cours créés.`);
+    console.log(`Catalog Microsoft : ${created} cours créés.`);
   }
 }
 

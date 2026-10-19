@@ -19,15 +19,15 @@ function getAdminPanels() {
   const tr = (key, fallback) => (typeof t === 'function' ? t(key) : fallback);
   return {
     overview: {
-      title: tr('admin.panel.overview', "Vue d'ensemble de la plateforme"),
+      title: tr('admin.panel.overview', "Overview de la plateforme"),
       headerAction: 'user',
     },
     mail: {
-      title: tr('admin.panel.mail', 'Configuration Microsoft 365 / envoi e-mail'),
+      title: tr('admin.panel.mail', 'Configuration Microsoft 365 / send e-mail'),
       headerAction: null,
     },
     newsletter: {
-      title: tr('admin.panel.newsletter', 'Composition et envoi de la newsletter formations'),
+      title: tr('admin.panel.newsletter', 'Composition et send de la newsletter formations'),
       headerAction: null,
     },
     'learners-pending': {
@@ -39,11 +39,11 @@ function getAdminPanels() {
       headerAction: null,
     },
     users: {
-      title: tr('admin.panel.users', 'Gestion des comptes et des rôles'),
+      title: tr('admin.panel.users', 'Account and role management'),
       headerAction: 'user',
     },
     courses: {
-      title: tr('admin.panel.courses', 'Catalogue, sessions et fréquentation'),
+      title: tr('admin.panel.courses', 'Catalog, sessions and attendance'),
       headerAction: 'course',
     },
   };
@@ -203,7 +203,7 @@ function openCreateUserModal() {
   showModal('Nouvel utilisateur', `
     <div class="field"><label>Nom</label><input name="name" required></div>
     <div class="field"><label>Email</label><input name="email" type="email" required></div>
-    <div class="field"><label>Mot de passe</label><input name="password" type="password" minlength="6" required></div>
+    <div class="field"><label>Password</label><input name="password" type="password" minlength="6" required></div>
     ${roleSelect('role', 'learner')}
     ${companyFieldHtml('', { required: true })}
   `, async (fd) => {
@@ -260,9 +260,9 @@ document.getElementById('modal-form').addEventListener('submit', async (e) => {
 function roleSelect(name, value = 'learner', roles = null) {
   const options = roles || adminCapabilities.assignable_roles || ['learner', 'instructor'];
   const labels = {
-    learner: 'Apprenant',
-    instructor: 'Formateur',
-    admin: 'Administrateur',
+    learner: 'Learner',
+    instructor: 'Instructor',
+    admin: 'Administrator',
   };
 
   return `
@@ -273,7 +273,7 @@ function roleSelect(name, value = 'learner', roles = null) {
           <option value="${role}"${value === role ? ' selected' : ''}>${labels[role] || role}</option>
         `).join('')}
       </select>
-      ${!adminCapabilities.can_assign_admin ? '<p class="muted field-hint">Seul l\'administrateur principal peut créer un administrateur.</p>' : ''}
+      ${!adminCapabilities.can_assign_admin ? '<p class="muted field-hint">Only the primary administrator can create an administrator.</p>' : ''}
     </div>
   `;
 }
@@ -281,17 +281,17 @@ function roleSelect(name, value = 'learner', roles = null) {
 function statusBadge(user) {
   if (!user.approved) {
     if (user.role === 'instructor') {
-      return '<span class="role-badge role-pending">Formateur en attente</span>';
+      return '<span class="role-badge role-pending">Instructor pending</span>';
     }
     if (user.role === 'learner') {
-      return '<span class="role-badge role-pending">Apprenant en attente</span>';
+      return '<span class="role-badge role-pending">Learner pending</span>';
     }
   }
   if (user.role === 'instructor') {
-    return '<span class="role-badge role-instructor">Validé</span>';
+    return '<span class="role-badge role-instructor">Approved</span>';
   }
   if (user.role === 'learner') {
-    return '<span class="role-badge role-learner">Validé</span>';
+    return '<span class="role-badge role-learner">Approved</span>';
   }
   return '<span class="muted">—</span>';
 }
@@ -319,7 +319,7 @@ function teachingAssignmentItemHtml(user, assignment) {
       <div class="schedule-picker-panel schedule-picker-panel--inline" data-teaching-schedule-panel="${courseId}" hidden>
         ${schedulePickerHtml(courseId, assignment.duration_days || 1, assignment.title, assignment.session_dates || [])}
         <div class="schedule-picker-actions">
-          <button type="button" class="btn-primary btn-xs" data-save-teaching-schedule data-course="${courseId}">Enregistrer les jours</button>
+          <button type="button" class="btn-primary btn-xs" data-save-teaching-schedule data-course="${courseId}">Save les jours</button>
         </div>
       </div>
     </li>
@@ -452,17 +452,17 @@ async function loadAdmin() {
     const rolesHint = document.getElementById('roles-hint');
     if (rolesHint) {
       rolesHint.textContent = adminCapabilities.can_assign_admin
-        ? 'Les formateurs et apprenants en attente peuvent être validés depuis le tableau (bouton « Valider et assigner ») ou depuis les sections dédiées du menu. Vous pouvez attribuer les rôles Apprenant, Formateur et Administrateur.'
-        : 'Les formateurs et apprenants en attente peuvent être validés depuis le tableau (bouton « Valider et assigner ») ou depuis les sections dédiées du menu. Seul l\'administrateur principal peut créer un administrateur.';
+        ? 'Pending instructors and learners can be approved from the table (“Approve and assign” button) or from the dedicated menu sections.'
+        : 'Pending instructors and learners can be approved from the table (“Approve and assign” button) or from the dedicated menu sections.';
     }
 
     if (stats) {
       document.getElementById('stats-grid').innerHTML = `
-        <article class="card stat-card"><strong>${stats.users}</strong><span>Utilisateurs</span></article>
-        <article class="card stat-card"><strong>${stats.pending_instructors}</strong><span>Formateurs en attente</span></article>
-        <article class="card stat-card"><strong>${stats.pending_learners ?? 0}</strong><span>Apprenants en attente</span></article>
-        <article class="card stat-card"><strong>${stats.courses}</strong><span>Cours</span></article>
-        <article class="card stat-card"><strong>${stats.enrollments}</strong><span>Inscriptions</span></article>
+        <article class="card stat-card"><strong>${stats.users}</strong><span>Users</span></article>
+        <article class="card stat-card"><strong>${stats.pending_instructors}</strong><span>Pending instructors</span></article>
+        <article class="card stat-card"><strong>${stats.pending_learners ?? 0}</strong><span>Pending learners</span></article>
+        <article class="card stat-card"><strong>${stats.courses}</strong><span>Courses</span></article>
+        <article class="card stat-card"><strong>${stats.enrollments}</strong><span>Registers</span></article>
       `;
     }
 
@@ -528,7 +528,7 @@ async function loadAdmin() {
         <td class="col-name">
           ${userProfileCellHtml(u, `
             ${avatarImgHtml(u, 'sm')}
-            <span>${u.name}${u.id === meUser?.id ? ' <span class="muted">(vous)</span>' : ''}</span>
+            <span>${u.name}${u.id === meUser?.id ? ' <span class="muted">(you)</span>' : ''}</span>
           `)}
         </td>
         <td class="col-email">${u.email}</td>
@@ -541,8 +541,8 @@ async function loadAdmin() {
           <button class="btn-primary btn-xs" data-edit-user="${u.id}">Modifier</button>
           ${u.role === 'instructor' && !u.approved ? `<button class="btn-secondary btn-xs" data-approve-instructor="${u.id}">Valider</button>` : ''}
           ${u.role === 'learner' && !u.approved ? `<button class="btn-secondary btn-xs" data-approve-learner="${u.id}">Valider</button>` : ''}
-          ${u.role === 'learner' && u.approved ? `<button class="btn-secondary btn-xs" data-assign-courses="${u.id}">Cours</button>` : ''}
-          ${u.role === 'learner' && u.approved ? `<button class="btn-secondary btn-xs" data-user-access="${u.id}">Accès</button>` : ''}
+          ${u.role === 'learner' && u.approved ? `<button class="btn-secondary btn-xs" data-assign-courses="${u.id}">Courses</button>` : ''}
+          ${u.role === 'learner' && u.approved ? `<button class="btn-secondary btn-xs" data-user-access="${u.id}">Access</button>` : ''}
           ${canAssignTeaching(u) ? `<button class="btn-secondary btn-xs" data-assign-teaching="${u.id}">Enseignement</button>` : ''}
           ${u.role === 'instructor' && !u.approved ? `<button class="btn-danger btn-xs" data-reject="${u.id}">Refuser</button>` : ''}
           ${u.role === 'learner' && !u.approved ? `<button class="btn-danger btn-xs" data-reject-learner="${u.id}">Refuser</button>` : ''}
@@ -550,14 +550,14 @@ async function loadAdmin() {
         </td>
       </tr>
     `).join('')
-      : '<tr><td colspan="8" class="muted">Aucun utilisateur trouvé</td></tr>';
+      : '<tr><td colspan="8" class="muted">No users found</td></tr>';
 
     document.getElementById('admin-courses').innerHTML = courses.length
       ? courses.map((c) => `
         <article class="card course-card">
           ${c.subject_label ? `<span class="subject-badge">${c.subject_label}</span>` : ''}
           <h4>${c.title}</h4>
-          <p class="muted">${c.description || 'Aucune description'}</p>
+          <p class="muted">${c.description || 'No description'}</p>
           <p class="meta">${c.instructor_name} · ${c.enrollment_count} inscrit(s)</p>
           <div class="card-actions">
             <a href="/course.html?id=${c.id}" class="btn-secondary btn-sm">Voir</a>
@@ -567,7 +567,7 @@ async function loadAdmin() {
           </div>
         </article>
       `).join('')
-      : '<p class="muted">Aucun cours.</p>';
+      : '<p class="muted">No courses.</p>';
 
     bindAdminEvents();
     bindAvatarFallbacks(document);
@@ -580,16 +580,16 @@ async function loadAdmin() {
     }
 
     if (errors.length) {
-      const authError = errors.some((e) => /401|403|non autorisé|authentification/i.test(e));
+      const authError = errors.some((e) => /401|403|unauthorized|authentication/i.test(e));
       showAdminError(
-        `Certaines données n'ont pas pu être chargées : ${errors.join(' · ')}`,
+        `Some data could not be loaded: ${errors.join(' · ')}`,
         authError
       );
     }
   } catch (err) {
-    const authError = /401|403|non autorisé|authentification|token/i.test(err.message || '');
+    const authError = /401|403|unauthorized|authentication|token/i.test(err.message || '');
     showAdminError(
-      err.message || 'Impossible de charger les données administrateur.',
+      err.message || 'Unable to load admin data.',
       authError
     );
   } finally {
@@ -599,7 +599,7 @@ async function loadAdmin() {
 
 function courseChecklistHtml(coursesList, selectedIds = []) {
   if (!coursesList.length) {
-    return '<p class="muted">Aucune formation du catalogue disponible. Créez d\'abord une formation via « Nouvelle formation ».</p>';
+    return '<p class="muted">No catalog courses available. First create a course via “New course”.</p>';
   }
 
   const bySubject = new Map();
@@ -649,12 +649,12 @@ function bindAdminEvents() {
       showModal(`Valider — ${learner.name}`, `
         <p class="muted">Sélectionnez les formations et choisissez les jours de session pour chaque cours (consécutifs ou répartis).</p>
         <div class="field">
-          <label>Formations assignées</label>
+          <label>Courses assignées</label>
           ${courseChecklistHtml(assignableCourses)}
         </div>
       `, async (fd, form) => {
         const courseIds = fd.getAll('course_ids').map((id) => parseInt(id, 10));
-        if (!courseIds.length) throw new Error('Sélectionnez au moins une formation');
+        if (!courseIds.length) throw new Error('Select at least one course');
         const coursesById = coursesMapFromList(assignableCourses);
         validateSchedulesInForm(form, courseIds, coursesById);
         const schedules = collectSchedulesFromForm(form, courseIds);
@@ -670,7 +670,7 @@ function bindAdminEvents() {
 
   document.querySelectorAll('[data-reject-learner]').forEach((btn) => {
     btn.addEventListener('click', async () => {
-      if (!confirm('Refuser cette inscription ? Le compte sera supprimé.')) return;
+      if (!confirm('Refuse this registration? The account will be deleted.')) return;
       await API.request(`/api/admin/learner-requests/${btn.dataset.rejectLearner}/reject`, { method: 'POST' });
       loadAdmin();
     });
@@ -686,12 +686,12 @@ function bindAdminEvents() {
       showModal(`Valider formateur — ${instructor.name}`, `
         <p class="muted">Sélectionnez les formations et choisissez les jours de session pour chaque cours (consécutifs ou répartis).</p>
         <div class="field">
-          <label>Formations à enseigner</label>
+          <label>Courses à enseigner</label>
           ${courseChecklistHtml(assignableCourses)}
         </div>
       `, async (fd, form) => {
         const courseIds = fd.getAll('course_ids').map((id) => parseInt(id, 10));
-        if (!courseIds.length) throw new Error('Sélectionnez au moins une formation');
+        if (!courseIds.length) throw new Error('Select at least one course');
         const coursesById = coursesMapFromList(assignableCourses);
         validateSchedulesInForm(form, courseIds, coursesById);
         const schedules = collectSchedulesFromForm(form, courseIds);
@@ -716,7 +716,7 @@ function bindAdminEvents() {
   document.getElementById('add-course-btn').onclick = async () => {
     const { subjects: subjectList } = await fetch('/api/subjects').then((r) => r.json());
     showModal('Nouvelle formation', `
-      <div class="field"><label>Titre</label><input name="title" required></div>
+      <div class="field"><label>Title</label><input name="title" required></div>
       <div class="field"><label>Description</label><textarea name="description" rows="3"></textarea></div>
       <div class="field">
         <label>Durée (jours)</label>
@@ -763,12 +763,12 @@ function bindAdminEvents() {
         <p class="muted">Planifiez les jours de chaque formation (1 à la durée officielle — utile pour un remplacement partiel).</p>
         ${assignments.length ? `
           <div class="field">
-            <label>Formations assignées</label>
+            <label>Courses assignées</label>
             <ul class="enrollment-list">
               ${assignments.map((a) => teachingAssignmentItemHtml(user, a)).join('')}
             </ul>
           </div>
-        ` : '<p class="muted">Aucune formation assignée pour le moment.</p>'}
+        ` : '<p class="muted">No courses assigned yet.</p>'}
         ${availableCourses.length ? `
         <div class="field">
           <label>Ajouter une formation</label>
@@ -827,11 +827,11 @@ function bindAdminEvents() {
 
       const { enrollments } = await API.request(`/api/admin/users/${user.id}/enrollments`);
 
-      showModal(`Formations — ${user.name}`, `
+      showModal(`Courses — ${user.name}`, `
         <p class="muted">L'accès au contenu reste permanent après la fin de chaque session.</p>
         ${enrollments.length ? `
           <div class="field">
-            <label>Formations suivies (accès permanent)</label>
+            <label>Courses suivies (accès permanent)</label>
             <ul class="enrollment-list">
               ${enrollments.map((e) => `
                 <li class="enrollment-item">
@@ -847,7 +847,7 @@ function bindAdminEvents() {
               `).join('')}
             </ul>
           </div>
-        ` : '<p class="muted">Aucune formation assignée pour le moment.</p>'}
+        ` : '<p class="muted">No courses assigned yet.</p>'}
         <div class="field">
           <label>Ajouter / planifier une session</label>
           ${assignableCourses.length
@@ -855,8 +855,8 @@ function bindAdminEvents() {
                 <option value="">— Choisir une formation —</option>
                 ${assignableCourses.map((c) => `<option value="${c.id}">${c.title} (${c.duration_days || 1} j · ${c.subject_label || c.subject})</option>`).join('')}
               </select>
-              <p class="muted field-hint">Vous pouvez ajouter une nouvelle session même si l'apprenant a déjà suivi ce cours.</p>`
-    : '<p class="muted">Aucune formation disponible dans le catalogue.</p>'}
+              <p class="muted field-hint">You can add a new session even if 'apprenant a déjà suivi ce cours.</p>`
+    : '<p class="muted">No courses available in the catalog.</p>'}
         </div>
         <div class="field">
           <label>Libellé de session (optionnel)</label>
@@ -864,7 +864,7 @@ function bindAdminEvents() {
         </div>
       `, async (fd, form) => {
         const courseId = parseInt(fd.get('course_id'), 10);
-        if (!courseId) throw new Error('Sélectionnez une formation');
+        if (!courseId) throw new Error('Select a course');
         const coursesById = coursesMapFromList(assignableCourses);
         validateSchedulesInForm(form, [courseId], coursesById);
         const sessionDates = collectScheduleFromForm(form, courseId);
@@ -882,7 +882,7 @@ function bindAdminEvents() {
 
       document.querySelectorAll('[data-unenroll]').forEach((unenrollBtn) => {
         unenrollBtn.addEventListener('click', async () => {
-          if (!confirm('Retirer l\'accès permanent à cette formation ?')) return;
+          if (!confirm('Remove permanent access to this course?')) return;
           await API.request(
             `/api/admin/users/${unenrollBtn.dataset.unenroll}/enrollments/${unenrollBtn.dataset.course}`,
             { method: 'DELETE' }
@@ -898,7 +898,7 @@ function bindAdminEvents() {
     btn.addEventListener('click', async () => {
       const userId = parseInt(btn.dataset.userAccess, 10);
       const stats = await API.request(`/api/admin/users/${userId}/access-stats`);
-      showModal(`Fréquentation — ${stats.user?.name || 'Participant'}`, `
+      showModal(`Attendance — ${stats.user?.name || 'Participant'}`, `
         <p class="muted">Consultations pendant la session et après (accès permanent).</p>
         <div class="stats-grid access-stats-summary">
           <article class="card stat-card"><strong>${stats.totals?.total_views || 0}</strong><span>Vues totales</span></article>
@@ -909,7 +909,7 @@ function bindAdminEvents() {
           <table class="data-table">
             <thead>
               <tr>
-                <th>Formation</th>
+                <th>Course</th>
                 <th>Session</th>
                 <th>Pendant</th>
                 <th>Après</th>
@@ -929,7 +929,7 @@ function bindAdminEvents() {
                     <td class="muted">${c.last_access_at ? String(c.last_access_at).slice(0, 16).replace('T', ' ') : '—'}</td>
                   </tr>
                 `).join('')
-                : '<tr><td colspan="6" class="muted">Aucune donnée d\'accès</td></tr>'}
+                : '<tr><td colspan="6" class="muted">No access data</td></tr>'}
             </tbody>
           </table>
         </div>
@@ -941,7 +941,7 @@ function bindAdminEvents() {
     btn.addEventListener('click', async () => {
       const courseId = parseInt(btn.dataset.courseAccess, 10);
       const stats = await API.request(`/api/admin/courses/${courseId}/access-stats`);
-      showModal(`Fréquentation — ${stats.course?.title || 'Formation'}`, `
+      showModal(`Attendance — ${stats.course?.title || 'Course'}`, `
         <div class="stats-grid access-stats-summary">
           <article class="card stat-card"><strong>${stats.totals?.participants || 0}</strong><span>Participants</span></article>
           <article class="card stat-card"><strong>${stats.totals?.views_during || 0}</strong><span>Pendant</span></article>
@@ -970,7 +970,7 @@ function bindAdminEvents() {
                     <td class="muted">${p.last_access_at ? String(p.last_access_at).slice(0, 16).replace('T', ' ') : '—'}</td>
                   </tr>
                 `).join('')
-                : '<tr><td colspan="5" class="muted">Aucun participant</td></tr>'}
+                : '<tr><td colspan="5" class="muted">No participants</td></tr>'}
             </tbody>
           </table>
         </div>
@@ -985,7 +985,7 @@ function bindAdminEvents() {
       const { sessions } = await API.request(`/api/admin/courses/${courseId}/sessions`);
       const learners = users.filter((u) => u.role === 'learner' && u.approved);
 
-      showModal(`Sessions — ${course?.title || 'Formation'}`, `
+      showModal(`Sessions — ${course?.title || 'Course'}`, `
         <p class="muted">Chaque session peut avoir des participants différents. Le contenu reste accessible ensuite.</p>
         ${sessions.length ? `
           <ul class="enrollment-list">
@@ -1004,13 +1004,13 @@ function bindAdminEvents() {
                       ${p.name}
                       <button type="button" class="btn-danger btn-xs" data-remove-participant="${s.id}" data-user="${p.user_id}" title="Retirer de la session">×</button>
                     </span>
-                  `).join('') || '<span class="muted">Aucun participant</span>'}
+                  `).join('') || '<span class="muted">No participants</span>'}
                 </div>
                 <div class="field" style="margin:0">
                   <label>Ajouter un participant</label>
                   <div style="display:flex;gap:0.5rem;align-items:center">
                     <select data-add-participant-select="${s.id}">
-                      <option value="">— Apprenant —</option>
+                      <option value="">— Learner —</option>
                       ${learners.map((u) => `<option value="${u.id}">${u.name}</option>`).join('')}
                     </select>
                     <button type="button" class="btn-secondary btn-xs" data-add-participant="${s.id}">Ajouter</button>
@@ -1019,18 +1019,18 @@ function bindAdminEvents() {
               </li>
             `).join('')}
           </ul>
-        ` : '<p class="muted">Aucune session pour le moment.</p>'}
+        ` : '<p class="muted">No sessions yet.</p>'}
         <hr>
         <h4>Nouvelle session</h4>
         <div class="field">
           <label>Libellé</label>
           <input name="label" placeholder="Ex. Session septembre 2026">
         </div>
-        ${schedulePickerHtml(courseId, course?.duration_days || 1, course?.title || 'Formation', [])}
+        ${schedulePickerHtml(courseId, course?.duration_days || 1, course?.title || 'Course', [])}
       `, async (fd, form) => {
         const label = fd.get('label');
         const sessionDates = collectScheduleFromForm(form, courseId);
-        if (!sessionDates.length) throw new Error('Sélectionnez les jours de la session');
+        if (!sessionDates.length) throw new Error('Select the session days');
         await API.request(`/api/admin/courses/${courseId}/sessions`, {
           method: 'POST',
           body: JSON.stringify({ label, session_dates: sessionDates }),
@@ -1118,7 +1118,7 @@ function bindAdminEvents() {
     btn.addEventListener('click', async () => {
       const user = users.find((u) => u.id === parseInt(btn.dataset.deleteUser, 10));
       const label = user ? `${user.name} (${user.email})` : 'cet utilisateur';
-      if (!confirm(`Supprimer définitivement ${label} ?`)) return;
+      if (!confirm(`Permanently delete ${label}?`)) return;
       try {
         await API.request(`/api/admin/users/${btn.dataset.deleteUser}`, { method: 'DELETE' });
         loadAdmin();
@@ -1131,9 +1131,9 @@ function bindAdminEvents() {
   document.querySelectorAll('[data-delete-course]').forEach((btn) => {
     btn.addEventListener('click', async () => {
       if (!confirm(
-        'Supprimer cette formation ?\n\n'
-        + 'Les accès des apprenants à cette formation seront retirés.\n'
-        + 'Les comptes apprenants ne seront pas supprimés.'
+        'Delete this course?\n\n'
+        + 'Learner access to this course will be revoked.\n'
+        + 'Learner accounts will not be deleted.'
       )) return;
       try {
         const result = await API.request(`/api/admin/courses/${btn.dataset.deleteCourse}`, { method: 'DELETE' });

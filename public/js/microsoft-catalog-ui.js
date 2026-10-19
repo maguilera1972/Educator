@@ -1,19 +1,19 @@
 const MICROSOFT_SUBSECTIONS_UI = [
-  { id: 'fundamentals', label: 'Fondamentaux', description: 'Certifications d\'entrée — idéal pour débuter ou changer de domaine.' },
-  { id: 'infrastructure', label: 'Infrastructure Azure', description: 'Administration, architecture et exploitation des workloads Azure.' },
-  { id: 'data-ai', label: 'Data & IA', description: 'Ingénierie des données, science des données, IA et Microsoft Fabric.' },
-  { id: 'digital-app', label: 'Applications & Innovation', description: 'Développement cloud, applications modernes et intégration IA.' },
-  { id: 'modern-work', label: 'Modern Work', description: 'Microsoft 365, Teams, endpoints et Power Platform.' },
-  { id: 'business-apps', label: 'Business Applications', description: 'Dynamics 365 — ventes, service client, finance et opérations.' },
-  { id: 'security', label: 'Sécurité', description: 'Sécurité cloud, identité, conformité et opérations de sécurité.' },
-  { id: 'specialty', label: 'Spécialités', description: 'Certifications ciblées pour des workloads spécifiques.' },
+  { id: 'fundamentals', label: 'Fundamentals', description: 'Entry-level certifications — ideal to get started or change fields.' },
+  { id: 'infrastructure', label: 'Azure Infrastructure', description: 'Administration, architecture and operation of Azure workloads.' },
+  { id: 'data-ai', label: 'Data & AI', description: 'Data engineering, data science, AI and Microsoft Fabric.' },
+  { id: 'digital-app', label: 'Apps & Innovation', description: 'Cloud development, modern apps and AI integration.' },
+  { id: 'modern-work', label: 'Modern Work', description: 'Microsoft 365, Teams, endpoints and Power Platform.' },
+  { id: 'business-apps', label: 'Business Applications', description: 'Dynamics 365 — sales, customer service, finance and operations.' },
+  { id: 'security', label: 'Security', description: 'Cloud security, identity, compliance and security operations.' },
+  { id: 'specialty', label: 'Specialties', description: 'Targeted certifications for specific workloads.' },
 ];
 
 const MICROSOFT_LEVEL_LABELS = {
-  fundamentals: 'Fondamental',
-  associate: 'Associé',
+  fundamentals: 'Fundamentals',
+  associate: 'Associate',
   expert: 'Expert',
-  specialty: 'Spécialité',
+  specialty: 'Specialty',
 };
 
 function localizedMicrosoftSubsections() {

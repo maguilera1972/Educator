@@ -2,7 +2,7 @@ const bcrypt = require('bcryptjs');
 
 const DEFAULT_ADMIN = {
   email: 'admin@example.com',
-  name: 'Administrateur',
+  name: 'Administrator',
 };
 
 function isValidEmail(value) {
@@ -45,7 +45,7 @@ function seedAdmin(db) {
   if (!passwordFromEnv) {
     console.warn('[seed] ADMIN_PASSWORD non défini — mot de passe initial temporaire : ChangeMeNow! (à changer immédiatement)');
   }
-  console.log(`Administrateur initial créé : ${email}`);
+  console.log(`Administrator initial créé : ${email}`);
 }
 
 module.exports = { seedAdmin };

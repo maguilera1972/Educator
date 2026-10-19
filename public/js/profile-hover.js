@@ -70,7 +70,7 @@
 
   function bioPreviewHtml(html) {
     if (!html?.trim()) {
-      return '<p class="profile-hover-card__empty muted">Aucune présentation rédigée.</p>';
+      return '<p class="profile-hover-card__empty muted">No bio written yet.</p>';
     }
     return `<div class="profile-hover-card__bio">${html}</div>`;
   }
@@ -96,7 +96,7 @@
   async function fetchPreview(userId) {
     if (cache.has(userId)) return cache.get(userId);
     if (typeof API === 'undefined' || !API.getToken()) {
-      throw new Error('Connexion requise');
+      throw new Error('Login requise');
     }
     const data = await API.request(`/api/profile/${userId}/preview`);
     cache.set(userId, data);
@@ -111,7 +111,7 @@
     activeTrigger = trigger;
     const card = ensureCard();
     card.hidden = false;
-    card.innerHTML = '<p class="profile-hover-card__loading muted">Chargement…</p>';
+    card.innerHTML = '<p class="profile-hover-card__loading muted">Loading…</p>';
     positionCard(trigger);
 
     try {

@@ -37,8 +37,8 @@ function instructorChipHtml(instructor) {
   const fallbackUrl = instructor.gravatar_fallback || instructor.avatar_url || '/avatars/generic-0.svg';
   const roleSuffix = instructor.teaching_role === 'principal'
     ? ' (principal)'
-    : instructor.teaching_role === 'remplaçant'
-      ? ' (remplaçant)'
+    : instructor.teaching_role === 'substitute'
+      ? ' (substitute)'
       : '';
   const inner = `
     <span class="instructor-chip">
@@ -54,7 +54,7 @@ function instructorLineHtml(name, avatarUrl, fallback, userId = null) {
   const inner = `
     <span class="instructor-line">
       <img src="${avatarUrl || fallbackUrl}" alt="" class="avatar avatar-sm" data-fallback="${fallbackUrl}" onerror="this.onerror=null;this.src=this.dataset.fallback;">
-      <span>Formateur : ${name}</span>
+      <span>Instructor : ${name}</span>
     </span>
   `;
   return profileHoverTrigger(userId, inner);
@@ -81,7 +81,7 @@ function instructorsLineHtml(instructors) {
   const chips = instructors.map((instructor) => instructorChipHtml(instructor)).join('<span class="instructor-sep"> · </span>');
   return `
     <span class="instructor-line instructor-line--multiple">
-      <span>Formateurs : ${chips}</span>
+      <span>Instructors : ${chips}</span>
     </span>
   `;
 }

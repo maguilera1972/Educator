@@ -9,29 +9,41 @@
 }
 
 :root {
-  /* Couleurs du logo LMS-Educator */
-  --brand-orange: #F0781A;
-  --brand-orange-dark: #D96810;
-  --brand-orange-light: #FFF4E8;
-  --brand-orange-border: #FAC898;
+  /* ALSO logo palette — derived from wordmark + banner accents */
+  --also-black: #000000;
+  --also-lime: #A8E010;
+  --also-teal: #00A89D;
+  --also-purple: #6B2D8B;
+  --also-orange: #F58220;
+  --also-yellow: #FFF200;
+  --also-blue: #2E6BFF;
 
-  --brand-navy: #1B3A5C;
-  --brand-navy-dark: #132A42;
-  --brand-navy-light: #E8EEF4;
+  --brand-orange: var(--also-orange);
+  --brand-orange-dark: #D96A12;
+  --brand-orange-light: #FFF6E8;
+  --brand-orange-border: #F5C089;
 
-  --primary: var(--brand-orange);
+  /* Teal/lime as cool accent (A mark); keep readable body text */
+  --brand-navy: #0F3D42;
+  --brand-navy-dark: #0A2A2E;
+  --brand-navy-light: #E6F5F4;
+
+  --primary: var(--also-orange);
   --primary-dark: var(--brand-orange-dark);
   --primary-light: var(--brand-orange-light);
-  --accent: var(--brand-navy);
-  --accent-dark: var(--brand-navy-dark);
+  --accent: var(--also-teal);
+  --accent-dark: #007F78;
+  --accent-lime: var(--also-lime);
+  --accent-yellow: var(--also-yellow);
+  --accent-purple: var(--also-purple);
 
   --danger: #dc2626;
   --danger-dark: #b91c1c;
-  --bg: #f7f8fa;
-  --text: var(--brand-navy);
-  --muted: #5a6f85;
+  --bg: #f6f8f8;
+  --text: #142428;
+  --muted: #5a6f75;
   --card: #ffffff;
-  --border: #d8e0ea;
+  --border: #d5e3e2;
   --layout-max: 1100px;
   --layout-pad: 1.5rem;
 }
@@ -65,7 +77,7 @@ a.logo,
 
 .logo-emblem {
   display: block;
-  height: 2.4rem;
+  height: 2.9rem;
   width: auto;
   flex-shrink: 0;
 }
@@ -75,7 +87,7 @@ a.logo,
   align-items: baseline;
   font-family: 'Montserrat', system-ui, sans-serif;
   font-weight: 700;
-  font-size: clamp(1.2rem, 2.1vw, 1.65rem);
+  font-size: clamp(1.35rem, 2.3vw, 1.85rem);
   letter-spacing: -0.02em;
   white-space: nowrap;
 }
@@ -90,7 +102,7 @@ a.logo,
 
 .logo-img {
   display: block;
-  height: 2.4rem;
+  height: 2.9rem;
   width: auto;
   max-width: none;
   object-fit: contain;
@@ -105,9 +117,11 @@ a.logo,
 }
 
 .header {
-  background: var(--card);
-  border-bottom: 2px solid var(--brand-orange-light);
-  padding-block: 0.75rem;
+  background:
+    linear-gradient(180deg, #ffffff 0%, #fffaf2 55%, #ffffff 100%);
+  border-bottom: 3px solid var(--also-teal);
+  box-shadow: inset 0 -3px 0 0 color-mix(in srgb, var(--also-orange) 55%, transparent);
+  padding-block: 0.85rem;
 }
 
 .header > .container {
@@ -408,28 +422,28 @@ nav a.active {
 }
 
 .auth-logo .logo-emblem {
-  height: 3rem;
+  height: 3.6rem;
 }
 
 .auth-logo .logo-wordmark {
-  font-size: clamp(1.45rem, 4vw, 1.9rem);
+  font-size: clamp(1.65rem, 4.2vw, 2.15rem);
 }
 
-body[data-page-title="Connexion"] .auth-logo {
+body[data-page-title="Login"] .auth-logo {
   gap: 0.9rem;
 }
 
-body[data-page-title="Connexion"] .auth-logo .logo-emblem {
-  height: 3.75rem;
+body[data-page-title="Login"] .auth-logo .logo-emblem {
+  height: 4.5rem;
 }
 
-body[data-page-title="Connexion"] .auth-logo .logo-wordmark {
-  font-size: clamp(1.75rem, 5vw, 2.25rem);
+body[data-page-title="Login"] .auth-logo .logo-wordmark {
+  font-size: clamp(2rem, 5.2vw, 2.55rem);
 }
 
 .auth-logo-img {
   display: block;
-  height: 3.25rem;
+  height: 3.9rem;
   width: auto;
   max-width: min(320px, 90vw);
   object-fit: contain;
@@ -3544,3 +3558,56 @@ body.sidebar-open .mobile-menu-btn-bars::after {
   white-space: nowrap;
 }
 
+
+
+/* ALSO theme accents (logo color language) */
+.btn-primary {
+  background: linear-gradient(135deg, var(--also-orange) 0%, #ff9a3c 55%, var(--also-orange) 100%);
+  border-color: var(--brand-orange-dark);
+  color: #fff;
+}
+.btn-primary:hover,
+.btn-primary:focus-visible {
+  background: linear-gradient(135deg, var(--also-teal) 0%, #12c0b3 55%, var(--also-teal) 100%);
+  border-color: var(--accent-dark);
+}
+.btn-secondary {
+  border-color: color-mix(in srgb, var(--also-teal) 45%, var(--border));
+  color: var(--brand-navy);
+}
+.btn-secondary:hover,
+.btn-secondary:focus-visible {
+  border-color: var(--also-teal);
+  color: var(--also-teal);
+  background: var(--brand-navy-light);
+}
+a:hover { color: var(--also-teal); }
+.header nav a:hover,
+.header nav a:focus-visible {
+  color: var(--also-teal);
+}
+.hero {
+  background:
+    radial-gradient(120% 80% at 10% 0%, color-mix(in srgb, var(--also-yellow) 28%, transparent) 0%, transparent 55%),
+    radial-gradient(90% 70% at 90% 10%, color-mix(in srgb, var(--also-orange) 22%, transparent) 0%, transparent 50%),
+    linear-gradient(180deg, var(--brand-orange-light) 0%, var(--bg) 72%);
+}
+.hero h2 { color: var(--brand-navy); }
+.role-badge.role-learner,
+.role-badge.role-instructor {
+  background: color-mix(in srgb, var(--also-teal) 16%, #fff);
+  color: var(--brand-navy);
+  border-color: color-mix(in srgb, var(--also-teal) 35%, var(--border));
+}
+.role-badge.role-pending {
+  background: color-mix(in srgb, var(--also-yellow) 35%, #fff);
+  color: #5a4a00;
+  border-color: color-mix(in srgb, var(--also-orange) 40%, var(--border));
+}
+.brand-logo .logo-emblem,
+.auth-logo .logo-emblem {
+  /* Keep ALSO mark readable; subtle black plate behind multicolor logo */
+  background: var(--also-black);
+  border-radius: 0.35rem;
+  padding: 0.2rem 0.28rem;
+}

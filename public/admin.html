@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <link rel="icon" type="image/png" href="/images/favicon.png" data-app-favicon>
-  <title>Administration — LMS-Educator</title>
-  <link rel="stylesheet" href="/css/style.css?v=56">
-  <script src="/js/config.js?v=3"></script>
-  <script src="/js/i18n.js?v=3"></script>
+  <title>Administration — ALSO LMS</title>
+  <link rel="stylesheet" href="/css/style.css?v=58">
+  <script src="/js/config.js?v=4"></script>
+  <script src="/js/i18n.js?v=4"></script>
   <script src="/js/i18n-catalog.js?v=1"></script>
 </head>
 <body data-page-title-key="admin.title" data-page-title="Administration">
@@ -18,11 +18,11 @@
         <span class="logo-wordmark"><span class="logo-wordmark-lms">LMS</span><span class="logo-wordmark-educator">-Educator</span></span>
       </a>
       <nav>
-        <a href="/courses.html" id="nav-courses" data-i18n="nav.courses">Cours</a>
-        <a href="/dashboard.html" id="nav-dashboard" data-i18n="nav.dashboard">Tableau de bord</a>
+        <a href="/courses.html" id="nav-courses" data-i18n="nav.courses">Courses</a>
+        <a href="/dashboard.html" id="nav-dashboard" data-i18n="nav.dashboard">Dashboard</a>
         <a href="/admin.html" id="nav-admin" data-i18n="nav.admin">Administration</a>
         <span id="nav-user" class="nav-user"></span>
-        <a href="#" id="logout-btn" class="nav-logout" hidden data-i18n="nav.logout">Déconnexion</a>
+        <a href="#" id="logout-btn" class="nav-logout" hidden data-i18n="nav.logout">Log out</a>
       </nav>
     </div>
   </header>
@@ -31,14 +31,14 @@
     <header class="page-header">
       <div>
         <h2 data-i18n="admin.title">Administration</h2>
-        <p class="muted page-header-sub" id="admin-panel-subtitle" data-i18n="admin.subtitle">Vue d'ensemble de la plateforme</p>
+        <p class="muted page-header-sub" id="admin-panel-subtitle" data-i18n="admin.subtitle">Platform overview</p>
       </div>
       <div class="page-header-actions" id="admin-header-actions">
-        <button class="btn-primary" id="add-user-btn" type="button" data-i18n="admin.newUser">+ Nouvel utilisateur</button>
+        <button class="btn-primary" id="add-user-btn" type="button" data-i18n="admin.newUser">+ New user</button>
       </div>
     </header>
 
-    <p id="admin-loading" class="muted page-status" data-i18n="admin.loading">Chargement des données…</p>
+    <p id="admin-loading" class="muted page-status" data-i18n="admin.loading">Loading data…</p>
     <p id="admin-error" class="status error" hidden></p>
 
     <div class="admin-shell">
@@ -46,16 +46,16 @@
         <p class="admin-subnav-title" data-i18n="admin.menu">Menu</p>
 
         <div class="admin-subnav-group">
-          <p class="admin-subnav-group-label" data-i18n="admin.group.general">Général</p>
+          <p class="admin-subnav-group-label" data-i18n="admin.group.general">General</p>
           <a href="#overview" class="admin-subnav-link is-active" data-admin-nav="overview">
-            <span data-i18n="admin.nav.overview">Vue d'ensemble</span>
+            <span data-i18n="admin.nav.overview">Overview</span>
           </a>
         </div>
 
         <div class="admin-subnav-group">
           <p class="admin-subnav-group-label" data-i18n="admin.group.communication">Communication</p>
           <a href="#mail" class="admin-subnav-link" data-admin-nav="mail">
-            <span data-i18n="admin.nav.mail">Configuration e-mail</span>
+            <span data-i18n="admin.nav.mail">Email settings</span>
           </a>
           <a href="#newsletter" class="admin-subnav-link" data-admin-nav="newsletter">
             <span data-i18n="admin.nav.newsletter">Newsletter</span>
@@ -63,24 +63,24 @@
         </div>
 
         <div class="admin-subnav-group">
-          <p class="admin-subnav-group-label" data-i18n="admin.group.accounts">Comptes</p>
+          <p class="admin-subnav-group-label" data-i18n="admin.group.accounts">Accounts</p>
           <a href="#learners-pending" class="admin-subnav-link" data-admin-nav="learners-pending">
-            <span data-i18n="admin.nav.learnersPending">Apprenants en attente</span>
+            <span data-i18n="admin.nav.learnersPending">Pending learners</span>
             <span class="admin-subnav-badge" data-admin-badge="learners-pending" hidden>0</span>
           </a>
           <a href="#instructors-pending" class="admin-subnav-link" data-admin-nav="instructors-pending">
-            <span data-i18n="admin.nav.instructorsPending">Formateurs en attente</span>
+            <span data-i18n="admin.nav.instructorsPending">Pending instructors</span>
             <span class="admin-subnav-badge" data-admin-badge="instructors-pending" hidden>0</span>
           </a>
           <a href="#users" class="admin-subnav-link" data-admin-nav="users">
-            <span data-i18n="admin.nav.users">Utilisateurs</span>
+            <span data-i18n="admin.nav.users">Users</span>
           </a>
         </div>
 
         <div class="admin-subnav-group">
-          <p class="admin-subnav-group-label" data-i18n="admin.group.catalog">Catalogue</p>
+          <p class="admin-subnav-group-label" data-i18n="admin.group.catalog">Catalog</p>
           <a href="#courses" class="admin-subnav-link" data-admin-nav="courses">
-            <span data-i18n="admin.nav.courses">Formations</span>
+            <span data-i18n="admin.nav.courses">Trainings</span>
           </a>
         </div>
       </nav>
@@ -88,26 +88,26 @@
       <div class="admin-panels">
         <section class="admin-panel is-active" id="admin-panel-overview" data-admin-panel="overview">
           <div class="admin-panel-header">
-            <h3 data-i18n="admin.nav.overview">Vue d'ensemble</h3>
-            <p class="muted" data-i18n="admin.overview.hint">Indicateurs clés et accès rapide aux autres espaces.</p>
+            <h3 data-i18n="admin.nav.overview">Overview</h3>
+            <p class="muted" data-i18n="admin.overview.hint">Key indicators and quick access to other areas.</p>
           </div>
           <section class="stats-grid" id="stats-grid"></section>
           <div class="admin-quick-links" id="admin-quick-links">
             <a href="#mail" class="card admin-quick-link" data-admin-nav="mail">
-              <strong data-i18n="admin.quick.mail">Configuration e-mail</strong>
+              <strong data-i18n="admin.quick.mail">Email settings</strong>
               <span class="muted" data-i18n="admin.quick.mailDesc">Microsoft 365 / Graph API</span>
             </a>
             <a href="#newsletter" class="card admin-quick-link" data-admin-nav="newsletter">
               <strong data-i18n="admin.quick.newsletter">Newsletter</strong>
-              <span class="muted" data-i18n="admin.quick.newsletterDesc">Annoncer les nouvelles formations</span>
+              <span class="muted" data-i18n="admin.quick.newsletterDesc">Announce new trainings</span>
             </a>
             <a href="#users" class="card admin-quick-link" data-admin-nav="users">
-              <strong data-i18n="admin.quick.users">Utilisateurs</strong>
-              <span class="muted" data-i18n="admin.quick.usersDesc">Rôles, validations et inscriptions</span>
+              <strong data-i18n="admin.quick.users">Users</strong>
+              <span class="muted" data-i18n="admin.quick.usersDesc">Roles, approvals and enrollments</span>
             </a>
             <a href="#courses" class="card admin-quick-link" data-admin-nav="courses">
-              <strong data-i18n="admin.quick.courses">Formations</strong>
-              <span class="muted" data-i18n="admin.quick.coursesDesc">Sessions et fréquentation</span>
+              <strong data-i18n="admin.quick.courses">Trainings</strong>
+              <span class="muted" data-i18n="admin.quick.coursesDesc">Sessions and attendance</span>
             </a>
           </div>
         </section>
@@ -115,15 +115,15 @@
         <section class="admin-panel" id="admin-panel-mail" data-admin-panel="mail" hidden>
           <div class="admin-panel-header">
             <div class="section-header">
-              <h3>Configuration e-mail</h3>
-              <span id="mail-config-status" class="role-badge role-pending">Chargement…</span>
+              <h3>Email configuration</h3>
+              <span id="mail-config-status" class="role-badge role-pending">Loading…</span>
             </div>
             <p class="muted section-hint">Envoi via Microsoft 365 (Graph API). Seuls les administrateurs peuvent modifier ces paramètres.</p>
           </div>
           <form id="mail-config-form" class="card mail-config-form">
             <label class="checkbox-row mail-config-enabled">
               <input type="checkbox" id="mail-enabled" name="enabled" value="1">
-              <span>Activer l'envoi d'e-mails</span>
+              <span>Activer l'send d'e-mails</span>
             </label>
             <div class="mail-config-grid">
               <div class="field">
@@ -136,15 +136,15 @@
               </div>
               <div class="field mail-config-field-full">
                 <label for="mail-client-secret">Secret client Azure</label>
-                <input type="password" id="mail-client-secret" name="client_secret" autocomplete="new-password" placeholder="Laisser vide pour conserver l'existant">
+                <input type="password" id="mail-client-secret" name="client_secret" autocomplete="new-password" placeholder="Laisser vide pour conserver l'existing">
                 <p class="muted field-hint" id="mail-secret-hint"></p>
               </div>
               <div class="field">
-                <label for="mail-send-as">Boîte d'envoi (Send As)</label>
+                <label for="mail-send-as">Mailbox (Send As)</label>
                 <input type="email" id="mail-send-as" name="send_as">
               </div>
               <div class="field">
-                <label for="mail-from">Adresse expéditeur</label>
+                <label for="mail-from">From address</label>
                 <input type="email" id="mail-from" name="from">
               </div>
               <div class="field">
@@ -157,12 +157,12 @@
               </div>
             </div>
             <div class="mail-config-actions">
-              <button type="submit" class="btn-primary">Enregistrer la configuration</button>
+              <button type="submit" class="btn-primary">Save configuration</button>
             </div>
             <p id="mail-save-status" class="status" hidden></p>
             <hr class="mail-config-divider">
             <div class="mail-config-test">
-              <h4>Test d'envoi</h4>
+              <h4>Test d'send</h4>
               <div class="mail-config-test-row">
                 <div class="field">
                   <label for="mail-test-to">Adresse de destination</label>
@@ -181,12 +181,12 @@
               <h3>Newsletter formations</h3>
               <span id="newsletter-recipient-count" class="role-badge role-learner">— apprenants</span>
             </div>
-            <p class="muted section-hint">Composez une newsletter présentant les nouveaux cours du catalogue, testez l'envoi, puis diffusez-la à tous les apprenants validés.</p>
+            <p class="muted section-hint">Composez une newsletter présentant les nouveaux cours du catalogue, testez l'send, puis diffusez-la à tous les apprenants validés.</p>
           </div>
           <form id="newsletter-form" class="card newsletter-form">
             <div class="field">
               <label for="newsletter-subject">Objet de l'e-mail</label>
-              <input type="text" id="newsletter-subject" name="subject" required placeholder="Ex. Nouveautés formations — été 2026" maxlength="180">
+              <input type="text" id="newsletter-subject" name="subject" required placeholder="e.g. New courses — Summer 2026" maxlength="180">
             </div>
             <div class="field">
               <label for="newsletter-intro-editor">Introduction</label>
@@ -195,9 +195,9 @@
                 <div id="newsletter-intro-toolbar" class="rich-text-editor__toolbar">
                   <button type="button" class="rich-text-editor__btn" data-command="bold" title="Gras"><strong>B</strong></button>
                   <button type="button" class="rich-text-editor__btn" data-command="italic" title="Italique"><em>I</em></button>
-                  <button type="button" class="rich-text-editor__btn" data-command="underline" title="Souligné"><u>U</u></button>
-                  <button type="button" class="rich-text-editor__btn" data-command="insertUnorderedList" title="Liste à puces">• Liste</button>
-                  <button type="button" class="rich-text-editor__btn" data-command="insertOrderedList" title="Liste numérotée">1. Liste</button>
+                  <button type="button" class="rich-text-editor__btn" data-command="underline" title="Underline"><u>U</u></button>
+                  <button type="button" class="rich-text-editor__btn" data-command="insertUnorderedList" title="Bullet list">• Liste</button>
+                  <button type="button" class="rich-text-editor__btn" data-command="insertOrderedList" title="Numbered list">1. Liste</button>
                   <button type="button" class="rich-text-editor__btn" data-command="createLink" title="Ajouter un lien">Lien</button>
                   <button type="button" class="rich-text-editor__btn" data-command="unlink" title="Supprimer le lien">Retirer lien</button>
                   <label class="rich-text-editor__btn rich-text-editor__btn--file" title="Image depuis fichier">
@@ -209,13 +209,13 @@
                 <div
                   id="newsletter-intro-editor"
                   class="rich-text-editor__body"
-                  data-placeholder="Message d'ouverture adressé aux apprenants…"
+                  data-placeholder="Opening message for learners…"
                 ></div>
               </div>
               <input type="hidden" id="newsletter-intro" name="intro" value="">
             </div>
             <div class="field">
-              <label>Formations à mettre en avant</label>
+              <label>Courses à mettre en avant</label>
               <p class="muted field-hint">Cochez les cours du catalogue à inclure dans la newsletter.</p>
               <div id="newsletter-course-list" class="newsletter-course-list"></div>
             </div>
@@ -238,13 +238,13 @@
               <button type="button" class="btn-secondary btn-xs" id="newsletter-preview-close">Fermer</button>
             </div>
             <p id="newsletter-preview-subject" class="muted"></p>
-            <iframe id="newsletter-preview-frame" class="newsletter-preview-frame" title="Aperçu newsletter"></iframe>
+            <iframe id="newsletter-preview-frame" class="newsletter-preview-frame" title="Newsletter preview"></iframe>
           </div>
         </section>
 
         <section class="admin-panel" id="admin-panel-learners-pending" data-admin-panel="learners-pending" hidden>
           <div class="admin-panel-header">
-            <h3>Inscriptions apprenants en attente</h3>
+            <h3>Pending learner registrations</h3>
             <p class="muted section-hint">Validez le compte et assignez les formations que l'apprenant doit suivre.</p>
           </div>
           <div id="learner-pending-requests" class="admin-pending-list"></div>
@@ -263,10 +263,10 @@
         <section class="admin-panel" id="admin-panel-users" data-admin-panel="users" hidden>
           <div class="admin-panel-header">
             <div class="section-header">
-              <h3>Utilisateurs</h3>
+              <h3>Users</h3>
               <button class="btn-primary btn-sm" id="add-user-btn-panel" type="button">+ Nouvel utilisateur</button>
             </div>
-            <p id="roles-hint" class="muted section-hint">Les formateurs et apprenants en attente peuvent être validés depuis le tableau (bouton « Valider et assigner ») ou depuis les sections dédiées.</p>
+            <p id="roles-hint" class="muted section-hint">Pending instructors and learners can be approved from the table (“Approve and assign” button) or fros les sections dédiées.</p>
           </div>
           <div class="table-wrap">
             <table class="data-table" id="users-table">
@@ -277,7 +277,7 @@
                   <th class="col-company">Entreprise</th>
                   <th class="col-role">Rôle</th>
                   <th class="col-status">Statut</th>
-                  <th class="col-count">Cours</th>
+                  <th class="col-count">Courses</th>
                   <th class="col-count">Inscr.</th>
                   <th class="col-actions">Actions</th>
                 </tr>
@@ -306,8 +306,8 @@
       <h3 id="modal-title"></h3>
       <form id="modal-form"></form>
       <div class="form-actions" id="modal-actions">
-        <button type="submit" form="modal-form" class="btn-primary">Enregistrer</button>
-        <button type="button" class="btn-secondary" id="modal-cancel">Annuler</button>
+        <button type="submit" form="modal-form" class="btn-primary">Save</button>
+        <button type="button" class="btn-secondary" id="modal-cancel">Cancel</button>
       </div>
       <p id="modal-error" class="status error" hidden></p>
     </div>

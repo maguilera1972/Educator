@@ -13,9 +13,9 @@ module.exports = function createLessonsRouter(db) {
       WHERE l.id = ? AND l.module_id = ? AND m.course_id = ?
     `).get(req.params.lessonId, req.params.moduleId, req.params.courseId);
 
-    if (!lesson) return res.status(404).json({ error: 'Leçon introuvable' });
+    if (!lesson) return res.status(404).json({ error: 'Lesson not found' });
     if (!canAccessCourse(db, req.user, req.params.courseId) && req.user.role === 'learner') {
-      return res.status(403).json({ error: 'Inscrivez-vous au cours pour y accéder' });
+      return res.status(403).json({ error: 'Enroll in the course to access it' });
     }
     res.json({ lesson });
   });
@@ -23,15 +23,15 @@ module.exports = function createLessonsRouter(db) {
   router.post('/', authRequired, requireInstructorOrAdmin(db), (req, res) => {
     const { courseId, moduleId } = req.params;
     if (!canManageCourse(db, req.user, courseId)) {
-      return res.status(403).json({ error: 'Accès non autorisé' });
+      return res.status(403).json({ error: 'Access denied' });
     }
 
     const mod = db.prepare('SELECT id FROM modules WHERE id = ? AND course_id = ?').get(moduleId, courseId);
-    if (!mod) return res.status(404).json({ error: 'Module introuvable' });
+    if (!mod) return res.status(404).json({ error: 'Module not found' });
 
     const { title, content, order_index } = req.body;
     if (!title?.trim()) {
-      return res.status(400).json({ error: 'Le titre est requis' });
+      return res.status(400).json({ error: 'Title is required' });
     }
 
     const maxOrder = db.prepare(
@@ -49,7 +49,7 @@ module.exports = function createLessonsRouter(db) {
   router.put('/:lessonId', authRequired, requireInstructorOrAdmin(db), (req, res) => {
     const { courseId, moduleId, lessonId } = req.params;
     if (!canManageCourse(db, req.user, courseId)) {
-      return res.status(403).json({ error: 'Accès non autorisé' });
+      return res.status(403).json({ error: 'Access denied' });
     }
 
     const lesson = db.prepare(`
@@ -58,11 +58,11 @@ module.exports = function createLessonsRouter(db) {
       WHERE l.id = ? AND l.module_id = ? AND m.course_id = ?
     `).get(lessonId, moduleId, courseId);
 
-    if (!lesson) return res.status(404).json({ error: 'Leçon introuvable' });
+    if (!lesson) return res.status(404).json({ error: 'Lesson not found' });
 
     const { title, content, order_index } = req.body;
     if (!title?.trim()) {
-      return res.status(400).json({ error: 'Le titre est requis' });
+      return res.status(400).json({ error: 'Title is required' });
     }
 
     db.prepare('UPDATE lessons SET title = ?, content = ?, order_index = ? WHERE id = ?').run(
@@ -76,7 +76,7 @@ module.exports = function createLessonsRouter(db) {
   router.delete('/:lessonId', authRequired, requireInstructorOrAdmin(db), (req, res) => {
     const { courseId, moduleId, lessonId } = req.params;
     if (!canManageCourse(db, req.user, courseId)) {
-      return res.status(403).json({ error: 'Accès non autorisé' });
+      return res.status(403).json({ error: 'Access denied' });
     }
 
     const lesson = db.prepare(`
@@ -85,7 +85,7 @@ module.exports = function createLessonsRouter(db) {
       WHERE l.id = ? AND l.module_id = ? AND m.course_id = ?
     `).get(lessonId, moduleId, courseId);
 
-    if (!lesson) return res.status(404).json({ error: 'Leçon introuvable' });
+    if (!lesson) return res.status(404).json({ error: 'Lesson not found' });
 
     db.prepare('DELETE FROM lessons WHERE id = ?').run(lessonId);
     res.json({ ok: true });

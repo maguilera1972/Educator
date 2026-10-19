@@ -8,12 +8,12 @@ module.exports = function createModulesRouter(db) {
   router.post('/', authRequired, requireInstructorOrAdmin(db), (req, res) => {
     const courseId = req.params.courseId;
     if (!canManageCourse(db, req.user, courseId)) {
-      return res.status(403).json({ error: 'Accès non autorisé' });
+      return res.status(403).json({ error: 'Access denied' });
     }
 
     const { title, order_index } = req.body;
     if (!title?.trim()) {
-      return res.status(400).json({ error: 'Le titre est requis' });
+      return res.status(400).json({ error: 'Title is required' });
     }
 
     const maxOrder = db.prepare(
@@ -32,14 +32,14 @@ module.exports = function createModulesRouter(db) {
     const mod = db.prepare('SELECT * FROM modules WHERE id = ? AND course_id = ?').get(
       req.params.moduleId, req.params.courseId
     );
-    if (!mod) return res.status(404).json({ error: 'Module introuvable' });
+    if (!mod) return res.status(404).json({ error: 'Module not found' });
     if (!canManageCourse(db, req.user, req.params.courseId)) {
-      return res.status(403).json({ error: 'Accès non autorisé' });
+      return res.status(403).json({ error: 'Access denied' });
     }
 
     const { title, order_index } = req.body;
     if (!title?.trim()) {
-      return res.status(400).json({ error: 'Le titre est requis' });
+      return res.status(400).json({ error: 'Title is required' });
     }
 
     db.prepare('UPDATE modules SET title = ?, order_index = ? WHERE id = ?').run(
@@ -54,9 +54,9 @@ module.exports = function createModulesRouter(db) {
     const mod = db.prepare('SELECT * FROM modules WHERE id = ? AND course_id = ?').get(
       req.params.moduleId, req.params.courseId
     );
-    if (!mod) return res.status(404).json({ error: 'Module introuvable' });
+    if (!mod) return res.status(404).json({ error: 'Module not found' });
     if (!canManageCourse(db, req.user, req.params.courseId)) {
-      return res.status(403).json({ error: 'Accès non autorisé' });
+      return res.status(403).json({ error: 'Access denied' });
     }
 
     db.prepare('DELETE FROM modules WHERE id = ?').run(mod.id);

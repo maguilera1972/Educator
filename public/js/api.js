@@ -33,16 +33,16 @@ const API = {
     try {
       res = await fetch(path, { ...options, headers });
     } catch {
-      throw new Error('Connexion interrompue lors de l\'envoi. Réessayez ou importez moins de fichiers à la fois.');
+      throw new Error('Login interrupted during upload. Retry or import fewer files at a time.');
     }
     const data = await res.json().catch(() => ({}));
 
     if (!res.ok) {
       let message = data.error || `Erreur ${res.status}`;
       if (res.status === 414) {
-        message = 'Erreur 414 — adresse de requête trop longue. Réessayez l\'import fichier par fichier, ou rechargez la page puis réimportez.';
+        message = 'Error 414 — request URL too long. Retry the import file by file, or reload the page then re-importez.';
       } else if (res.status === 413) {
-        message = 'Erreur 413 — fragment trop volumineux pour le proxy. Réessayez l\'import (les gros fichiers sont découpés automatiquement).';
+        message = 'Error 413 — chunk too large for the proxy. Retry the import (large files are split automaticalt).';
       }
       if (res.status === 401 && !path.startsWith('/api/auth/login') && !path.startsWith('/api/auth/register')) {
         this.clearToken();
@@ -50,7 +50,7 @@ const API = {
         if (!onAuthPage) {
           const next = encodeURIComponent(window.location.pathname + window.location.search);
           window.location.href = `/login.html?next=${next}&reason=session`;
-          throw new Error('Session expirée — reconnexion…');
+          throw new Error('Session expired — signing in again…');
         }
       }
       throw new Error(message);
@@ -253,9 +253,9 @@ function getRoleLabels() {
     };
   }
   return {
-    learner: 'Apprenant',
-    instructor: 'Formateur',
-    admin: 'Administrateur',
+    learner: 'Learner',
+    instructor: 'Instructor',
+    admin: 'Administrator',
   };
 }
 
@@ -307,7 +307,7 @@ function isApprovedLearner(user) {
 function getPendingBannerMessage(user) {
   if (!user || user.role === 'admin' || user.approved) return null;
   if (isPendingInstructor(user)) {
-    return 'Votre compte formateur est en attente de validation. Un administrateur validera votre profil et vous assignera les formations à enseigner.';
+    return 'Your instructor account is pending approval. An administrator will approve your profile and assign your courses.';
   }
   if (isPendingLearner(user)) {
     return 'Votre compte est en attente de validation. Un administrateur validera votre inscription et vous assignera vos formations.';

@@ -30,7 +30,7 @@ function renderNewsletterCourseList(coursesList) {
   if (!box) return;
 
   if (!coursesList?.length) {
-    box.innerHTML = '<p class="muted">Aucune formation catalogue disponible. Créez d\'abord des formations.</p>';
+    box.innerHTML = '<p class="muted">No catalog courses available. Create courses first.</p>';
     return;
   }
 
@@ -68,7 +68,7 @@ function showNewsletterPreview(preview) {
   if (!wrap || !frame) return;
 
   subjectEl.textContent = `Objet : ${preview.subject || ''} · ${preview.course_count || 0} formation(s) · ${preview.recipient_count || 0} destinataire(s)`;
-  frame.srcdoc = preview.html || '<p>Aperçu indisponible</p>';
+  frame.srcdoc = preview.html || '<p>Preview unavailable</p>';
   wrap.hidden = false;
 }
 
@@ -116,13 +116,13 @@ function bindNewsletterEvents() {
     setNewsletterStatus('');
     try {
       const payload = getNewsletterPayload();
-      if (!payload.subject) throw new Error('Indiquez un objet pour la newsletter');
+      if (!payload.subject) throw new Error('Enter a subject for the newsletter');
       const data = await API.request('/api/admin/newsletter/preview', {
         method: 'POST',
         body: JSON.stringify(payload),
       });
       showNewsletterPreview(data.preview);
-      setNewsletterStatus('Aperçu généré.');
+      setNewsletterStatus('Preview generated.');
     } catch (err) {
       setNewsletterStatus(err.message, 'error');
     }
@@ -133,7 +133,7 @@ function bindNewsletterEvents() {
     const btn = document.getElementById('newsletter-test-btn');
     try {
       const payload = getNewsletterPayload();
-      if (!payload.subject) throw new Error('Indiquez un objet pour la newsletter');
+      if (!payload.subject) throw new Error('Enter a subject for the newsletter');
       const to = document.getElementById('newsletter-test-to')?.value.trim()
         || window.currentAdminUser?.email
         || '';
@@ -145,7 +145,7 @@ function bindNewsletterEvents() {
         body: JSON.stringify({ ...payload, to }),
       });
       if (data.preview) showNewsletterPreview(data.preview);
-      setNewsletterStatus(data.message || `Test envoyé à ${to}.`);
+      setNewsletterStatus(data.message || `Test sent to ${to}.`);
     } catch (err) {
       setNewsletterStatus(err.message, 'error');
     } finally {
@@ -159,11 +159,11 @@ function bindNewsletterEvents() {
     const btn = document.getElementById('newsletter-send-btn');
     try {
       const payload = getNewsletterPayload();
-      if (!payload.subject) throw new Error('Indiquez un objet pour la newsletter');
-      if (!payload.course_ids.length) throw new Error('Sélectionnez au moins une formation');
+      if (!payload.subject) throw new Error('Enter a subject for the newsletter');
+      if (!payload.course_ids.length) throw new Error('Select at least one course');
 
       const countBadge = document.getElementById('newsletter-recipient-count')?.textContent || 'tous les apprenants';
-      if (!confirm(`Envoyer cette newsletter à ${countBadge} ?`)) return;
+      if (!confirm(`Send this newsletter to ${countBadge}?`)) return;
 
       if (btn) btn.disabled = true;
       setNewsletterStatus('Envoi en cours…');
@@ -171,7 +171,7 @@ function bindNewsletterEvents() {
         method: 'POST',
         body: JSON.stringify({ ...payload, confirm: true }),
       });
-      setNewsletterStatus(data.message || 'Newsletter envoyée.');
+      setNewsletterStatus(data.message || 'Newsletter sent.');
     } catch (err) {
       setNewsletterStatus(err.message, 'error');
     } finally {

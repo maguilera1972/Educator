@@ -92,7 +92,7 @@ function getFallbackInstructorId(db, excludeUserId) {
 function deleteUserCompletely(db, userId) {
   const fallbackInstructorId = getFallbackInstructorId(db, userId);
   if (!fallbackInstructorId) {
-    throw new Error('Impossible de supprimer le dernier administrateur du système');
+    throw new Error('Cannot delete the last system administrator');
   }
 
   const run = db.transaction(() => {
@@ -104,7 +104,7 @@ function deleteUserCompletely(db, userId) {
     );
     const result = db.prepare('DELETE FROM users WHERE id = ?').run(userId);
     if (!result.changes) {
-      throw new Error('Utilisateur introuvable');
+      throw new Error('User not found');
     }
   });
 
@@ -181,19 +181,19 @@ module.exports = function createAdminRouter(db) {
     if (!result.ok) {
       return res.status(400).json({ error: result.error });
     }
-    res.json({ ok: true, settings: result.settings, message: 'Configuration e-mail enregistrée' });
+    res.json({ ok: true, settings: result.settings, message: 'Email configuration saved' });
   });
 
   router.post('/mail/test', async (req, res) => {
     if (!isMailConfigured()) {
       return res.status(503).json({
-        error: 'Microsoft 365 non configuré. Complétez les paramètres e-mail ci-dessous.',
+        error: 'Microsoft 365 is not configured. Complete the email settings below.',
       });
     }
 
     const to = req.body?.to?.trim() || req.user.email;
     if (!to || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) {
-      return res.status(400).json({ error: 'Adresse e-mail de test invalide' });
+      return res.status(400).json({ error: 'Invalid test email address' });
     }
 
     const loginUrl = `${(process.env.PUBLIC_URL || 'https://lms-educator.eureka-training.online').replace(/\/$/, '')}/login.html`;
@@ -201,19 +201,19 @@ module.exports = function createAdminRouter(db) {
     try {
       const result = await sendMail({
         to,
-        subject: 'Test LMS-Educator — envoi Microsoft 365',
+        subject: 'Test LMS-Educator — send Microsoft 365',
         html: `
           <div style="font-family:Arial,sans-serif;color:#1B3A5C;line-height:1.6;">
-            <p>Ce message confirme que l'envoi d'e-mails via Microsoft 365 fonctionne pour <strong>LMS-Educator</strong>.</p>
-            <p>Expéditeur configuré : <strong>${process.env.MAIL_FROM || 'info@eureka-training.online'}</strong></p>
+            <p>Ce message confirme que l'send d'emails via Microsoft 365 works for <strong>ALSO LMS</strong>.</p>
+            <p>Sender configured: <strong>${process.env.MAIL_FROM || 'info@eureka-training.online'}</strong></p>
             <p><a href="${loginUrl}" style="color:#F0781A;">Accéder à la plateforme</a></p>
           </div>
         `,
-        text: `Test LMS-Educator — envoi Microsoft 365 OK. Plateforme : ${loginUrl}`,
+        text: `Test LMS-Educator — send Microsoft 365 OK. Plateforme : ${loginUrl}`,
       });
-      res.json({ ok: true, message: `E-mail de test envoyé à ${to}`, result });
+      res.json({ ok: true, message: `Test email sent to ${to}`, result });
     } catch (err) {
-      console.error('[mail] Échec test envoi:', err);
+      console.error('[mail] Test send failed:', err);
       res.status(502).json({ error: formatMailError(err) });
     }
   });
@@ -234,7 +234,7 @@ module.exports = function createAdminRouter(db) {
       subject,
       intro,
       course_ids: courseIds,
-      recipientName: req.user.name || 'Apprenant',
+      recipientName: req.user.name || 'Learner',
     });
     res.json({ preview });
   });
@@ -247,10 +247,10 @@ module.exports = function createAdminRouter(db) {
         intro,
         course_ids: courseIds,
         to: to?.trim() || req.user.email,
-        recipientName: req.user.name || 'Administrateur',
+        recipientName: req.user.name || 'Administrator',
       });
       if (!result.ok) {
-        return res.status(result.error?.includes('configuré') || result.error?.includes('désactivé') ? 503 : 400)
+        return res.status(result.error?.includes('configured') || result.error?.includes('disabled') ? 503 : 400)
           .json({ error: result.error });
       }
       res.json(result);
@@ -264,7 +264,7 @@ module.exports = function createAdminRouter(db) {
     const { subject, intro, course_ids: courseIds, confirm } = req.body || {};
     if (!confirm) {
       return res.status(400).json({
-        error: 'Confirmez l\'envoi à tous les apprenants (confirm: true).',
+        error: 'Confirm send to all learners (confirm: true).',
       });
     }
 
@@ -275,7 +275,7 @@ module.exports = function createAdminRouter(db) {
         course_ids: courseIds,
       });
       if (!result.ok) {
-        return res.status(result.error?.includes('configuré') || result.error?.includes('désactivé') ? 503 : 400)
+        return res.status(result.error?.includes('configured') || result.error?.includes('disabled') ? 503 : 400)
           .json({ error: result.error });
       }
       res.json(result);
@@ -291,7 +291,7 @@ module.exports = function createAdminRouter(db) {
         return res.status(400).json({ error: err.message || 'Upload impossible' });
       }
       if (!req.file) {
-        return res.status(400).json({ error: 'Aucun fichier reçu' });
+        return res.status(400).json({ error: 'No file received' });
       }
       const url = newsletterImageUrl(req.file.filename);
       res.status(201).json({ url, filename: req.file.filename });
@@ -329,11 +329,11 @@ module.exports = function createAdminRouter(db) {
     ).get(req.params.id);
 
     if (!user) {
-      return res.status(404).json({ error: 'Demande apprenant introuvable' });
+      return res.status(404).json({ error: 'Learner request not found' });
     }
 
     if (!Array.isArray(courseIds) || !courseIds.length) {
-      return res.status(400).json({ error: 'Au moins une formation doit être assignée' });
+      return res.status(400).json({ error: 'At least one course must be assigned' });
     }
 
     const validIds = courseIds
@@ -341,7 +341,7 @@ module.exports = function createAdminRouter(db) {
       .filter((id) => db.prepare('SELECT id FROM courses WHERE id = ?').get(id));
 
     if (!validIds.length) {
-      return res.status(400).json({ error: 'Aucun cours valide sélectionné' });
+      return res.status(400).json({ error: 'No valid course selected' });
     }
 
     const scheduleCheck = validateSchedulesForCourses(db, schedules, validIds);
@@ -358,7 +358,7 @@ module.exports = function createAdminRouter(db) {
         scheduleCheck.schedules[courseId]
       );
       if (!enrolled.ok) {
-        return res.status(400).json({ error: enrolled.error || 'Impossible d\'inscrire à la session' });
+        return res.status(400).json({ error: enrolled.error || 'Unable to enroll in the session' });
       }
     }
 
@@ -373,13 +373,13 @@ module.exports = function createAdminRouter(db) {
         scheduleCheck.schedules
       );
     } catch (err) {
-      console.error('[mail] Échec envoi confirmation inscription apprenant:', err);
+      console.error('[mail] Failed to send learner enrollment confirmation:', err);
       emailResult = { sent: false, error: err.message };
     }
 
     res.json({
       user: enrichPublicUser(updated),
-      message: 'Apprenant validé et formations assignées',
+      message: 'Learner approved and courses assigned',
       email: emailResult,
     });
   });
@@ -390,17 +390,17 @@ module.exports = function createAdminRouter(db) {
     ).get(req.params.id);
 
     if (!user) {
-      return res.status(404).json({ error: 'Demande apprenant introuvable' });
+      return res.status(404).json({ error: 'Learner request not found' });
     }
 
     db.prepare('DELETE FROM users WHERE id = ?').run(user.id);
-    res.json({ ok: true, message: 'Inscription refusée — compte supprimé' });
+    res.json({ ok: true, message: 'Registration refused — account deleted' });
   });
 
   router.get('/users/:id/enrollments', (req, res) => {
     const user = db.prepare('SELECT id, role FROM users WHERE id = ?').get(req.params.id);
     if (!user) {
-      return res.status(404).json({ error: 'Utilisateur introuvable' });
+      return res.status(404).json({ error: 'User not found' });
     }
 
     const enrollments = db.prepare(`
@@ -425,7 +425,7 @@ module.exports = function createAdminRouter(db) {
     const user = db.prepare('SELECT id, role FROM users WHERE id = ?').get(req.params.id);
 
     if (!user) {
-      return res.status(404).json({ error: 'Utilisateur introuvable' });
+      return res.status(404).json({ error: 'User not found' });
     }
     if (user.role !== 'learner') {
       return res.status(400).json({ error: 'Seuls les apprenants peuvent recevoir des assignations de cours' });
@@ -433,7 +433,7 @@ module.exports = function createAdminRouter(db) {
 
     const course = db.prepare('SELECT id, duration_days FROM courses WHERE id = ?').get(courseId);
     if (!course) {
-      return res.status(404).json({ error: 'Cours introuvable' });
+      return res.status(404).json({ error: 'Course not found' });
     }
 
     const dateCheck = validateSessionDates(sessionDates, course.duration_days);
@@ -443,12 +443,12 @@ module.exports = function createAdminRouter(db) {
 
     const enrolled = enrollLearnerInSession(db, user.id, course.id, dateCheck.dates, sessionLabel);
     if (!enrolled.ok) {
-      return res.status(enrolled.status || 400).json({ error: enrolled.error || 'Inscription impossible' });
+      return res.status(enrolled.status || 400).json({ error: enrolled.error || 'Register impossible' });
     }
 
     res.status(201).json({
       ok: true,
-      message: 'Formation assignée (accès permanent au contenu)',
+      message: 'Course assigned (permanent content access)',
       session: enrolled.session,
     });
   });
@@ -468,7 +468,7 @@ module.exports = function createAdminRouter(db) {
       'DELETE FROM enrollments WHERE user_id = ? AND course_id = ?'
     ).run(userId, courseId);
     if (!result.changes) {
-      return res.status(404).json({ error: 'Inscription introuvable' });
+      return res.status(404).json({ error: 'Enrollment not found' });
     }
     deleteSessionDates(db, userId, courseId, 'enrollment');
     res.json({ ok: true });
@@ -478,7 +478,7 @@ module.exports = function createAdminRouter(db) {
 
   router.get('/courses/:courseId/sessions', (req, res) => {
     const course = db.prepare('SELECT id, title FROM courses WHERE id = ?').get(req.params.courseId);
-    if (!course) return res.status(404).json({ error: 'Cours introuvable' });
+    if (!course) return res.status(404).json({ error: 'Course not found' });
     const sessions = listCourseSessions(db, course.id).map((session) => ({
       ...session,
       participants: listSessionParticipants(db, session.id),
@@ -500,7 +500,7 @@ module.exports = function createAdminRouter(db) {
       label: req.body?.label,
       session_dates: req.body?.session_dates,
     });
-    if (!updated.ok) return res.status(updated.error === 'Session introuvable' ? 404 : 400).json({ error: updated.error });
+    if (!updated.ok) return res.status(updated.error === 'Session not found' ? 404 : 400).json({ error: updated.error });
     res.json({ session: updated.session });
   });
 
@@ -512,7 +512,7 @@ module.exports = function createAdminRouter(db) {
 
   router.get('/sessions/:sessionId/participants', (req, res) => {
     const session = getSession(db, parseInt(req.params.sessionId, 10));
-    if (!session) return res.status(404).json({ error: 'Session introuvable' });
+    if (!session) return res.status(404).json({ error: 'Session not found' });
     res.json({
       session,
       participants: listSessionParticipants(db, session.id),
@@ -521,13 +521,13 @@ module.exports = function createAdminRouter(db) {
 
   router.post('/sessions/:sessionId/participants', (req, res) => {
     const userId = parseInt(req.body?.user_id, 10);
-    if (!userId) return res.status(400).json({ error: 'user_id requis' });
+    if (!userId) return res.status(400).json({ error: 'user_id required' });
     const added = addSessionParticipant(db, parseInt(req.params.sessionId, 10), userId, 'learner');
     if (!added.ok) return res.status(added.status || 400).json({ error: added.error });
     res.status(201).json({
       ok: true,
       participants: added.participants,
-      message: 'Participant ajouté — accès permanent au contenu de la formation',
+      message: 'Participant added — permanent access to course content',
     });
   });
 
@@ -545,7 +545,7 @@ module.exports = function createAdminRouter(db) {
 
   router.get('/users/:id/access-stats', (req, res) => {
     const user = db.prepare('SELECT id, name, email, role FROM users WHERE id = ?').get(req.params.id);
-    if (!user) return res.status(404).json({ error: 'Utilisateur introuvable' });
+    if (!user) return res.status(404).json({ error: 'User not found' });
     const courseId = req.query.course_id ? parseInt(req.query.course_id, 10) : null;
     const stats = getParticipantAccessStats(db, user.id, courseId);
     res.json({ user: enrichPublicUser(user), ...stats });
@@ -553,7 +553,7 @@ module.exports = function createAdminRouter(db) {
 
   router.get('/courses/:id/access-stats', (req, res) => {
     const course = db.prepare('SELECT id, title, subject FROM courses WHERE id = ?').get(req.params.id);
-    if (!course) return res.status(404).json({ error: 'Cours introuvable' });
+    if (!course) return res.status(404).json({ error: 'Course not found' });
     const stats = getCourseAccessStats(db, course.id);
     res.json({
       course: {
@@ -581,11 +581,11 @@ module.exports = function createAdminRouter(db) {
     ).get(req.params.id);
 
     if (!user) {
-      return res.status(404).json({ error: 'Demande formateur introuvable' });
+      return res.status(404).json({ error: 'Instructor request not found' });
     }
 
     if (!Array.isArray(courseIds) || !courseIds.length) {
-      return res.status(400).json({ error: 'Au moins une formation à enseigner doit être assignée' });
+      return res.status(400).json({ error: 'At least one teaching course must be assigned' });
     }
 
     const validIds = courseIds
@@ -593,7 +593,7 @@ module.exports = function createAdminRouter(db) {
       .filter((id) => db.prepare('SELECT id FROM courses WHERE id = ?').get(id));
 
     if (!validIds.length) {
-      return res.status(400).json({ error: 'Aucun cours valide sélectionné' });
+      return res.status(400).json({ error: 'No valid course selected' });
     }
 
     const scheduleCheck = validateSchedulesForCourses(db, schedules, validIds);
@@ -608,7 +608,7 @@ module.exports = function createAdminRouter(db) {
     }
 
     const updated = db.prepare(`SELECT ${USER_PUBLIC_COLUMNS} FROM users WHERE id = ?`).get(user.id);
-    res.json({ user: enrichPublicUser(updated), message: 'Formateur validé et formations assignées' });
+    res.json({ user: enrichPublicUser(updated), message: 'Instructor approved and courses assigned' });
   });
 
   router.post('/instructor-requests/:id/reject', (req, res) => {
@@ -617,18 +617,18 @@ module.exports = function createAdminRouter(db) {
     ).get(req.params.id);
 
     if (!user) {
-      return res.status(404).json({ error: 'Demande formateur introuvable' });
+      return res.status(404).json({ error: 'Instructor request not found' });
     }
 
     db.prepare("UPDATE users SET role = 'learner', approved = 1 WHERE id = ?").run(user.id);
     const updated = db.prepare(`SELECT ${USER_PUBLIC_COLUMNS} FROM users WHERE id = ?`).get(user.id);
-    res.json({ user: enrichPublicUser(updated), message: 'Demande refusée — le compte est redevenu apprenant' });
+    res.json({ user: enrichPublicUser(updated), message: 'Request refused — account reverted to learner' });
   });
 
   router.get('/users/:id/instructor-assignments', (req, res) => {
     const user = db.prepare('SELECT id, role FROM users WHERE id = ?').get(req.params.id);
     if (!user) {
-      return res.status(404).json({ error: 'Utilisateur introuvable' });
+      return res.status(404).json({ error: 'User not found' });
     }
 
     const assignments = db.prepare(`
@@ -651,15 +651,15 @@ module.exports = function createAdminRouter(db) {
     const user = db.prepare('SELECT id, role, approved, is_instructor FROM users WHERE id = ?').get(req.params.id);
 
     if (!user) {
-      return res.status(404).json({ error: 'Utilisateur introuvable' });
+      return res.status(404).json({ error: 'User not found' });
     }
     if (!canReceiveTeachingAssignments(user)) {
-      return res.status(400).json({ error: 'Seuls les formateurs validés et administrateurs formateurs peuvent recevoir des assignations' });
+      return res.status(400).json({ error: 'Only approved instructors and instructor-admins can receive assignments' });
     }
 
     const course = db.prepare('SELECT id, duration_days FROM courses WHERE id = ?').get(courseId);
     if (!course) {
-      return res.status(404).json({ error: 'Cours introuvable' });
+      return res.status(404).json({ error: 'Course not found' });
     }
 
     const dateCheck = validateTeachingAssignmentDates(db, user.id, course.id, sessionDates, course.duration_days);
@@ -669,7 +669,7 @@ module.exports = function createAdminRouter(db) {
 
     assignInstructorToCourse(db, user.id, course.id);
     saveSessionDates(db, user.id, course.id, 'teaching', dateCheck.dates);
-    res.status(201).json({ ok: true, message: 'Formation assignée au formateur' });
+    res.status(201).json({ ok: true, message: 'Course assigned to instructor' });
   });
 
   router.get('/courses/:courseId/teaching-session-dates', (req, res) => {
@@ -678,7 +678,7 @@ module.exports = function createAdminRouter(db) {
 
     const course = db.prepare('SELECT id, title, duration_days FROM courses WHERE id = ?').get(courseId);
     if (!course) {
-      return res.status(404).json({ error: 'Cours introuvable' });
+      return res.status(404).json({ error: 'Course not found' });
     }
 
     const dates = getOtherInstructorsSessionDates(db, courseId, excludeUserId);
@@ -700,7 +700,7 @@ module.exports = function createAdminRouter(db) {
     ).get(req.params.id, req.params.courseId);
 
     if (!result) {
-      return res.status(404).json({ error: 'Assignation introuvable' });
+      return res.status(404).json({ error: 'Assignment not found' });
     }
 
     removeInstructorFromCourse(db, parseInt(req.params.id, 10), parseInt(req.params.courseId, 10));
@@ -718,12 +718,12 @@ module.exports = function createAdminRouter(db) {
     ).get(userId, courseId);
 
     if (!assignment) {
-      return res.status(404).json({ error: 'Assignation formateur introuvable' });
+      return res.status(404).json({ error: 'Instructor assignment not found' });
     }
 
     const course = db.prepare('SELECT id, duration_days, title FROM courses WHERE id = ?').get(courseId);
     if (!course) {
-      return res.status(404).json({ error: 'Cours introuvable' });
+      return res.status(404).json({ error: 'Course not found' });
     }
 
     const dateCheck = validateTeachingAssignmentDates(db, userId, courseId, sessionDates, course.duration_days);
@@ -734,7 +734,7 @@ module.exports = function createAdminRouter(db) {
     saveSessionDates(db, userId, courseId, 'teaching', dateCheck.dates);
     res.json({
       ok: true,
-      message: 'Jours de formation mis à jour',
+      message: 'Training days updated',
       session_dates: dateCheck.dates,
     });
   });
@@ -755,10 +755,10 @@ module.exports = function createAdminRouter(db) {
     const { email, password, name, role, company } = req.body;
 
     if (!email?.trim() || !password || !name?.trim()) {
-      return res.status(400).json({ error: 'Email, mot de passe et nom requis' });
+      return res.status(400).json({ error: 'Email, password and name required' });
     }
     if (password.length < 6) {
-      return res.status(400).json({ error: 'Le mot de passe doit contenir au moins 6 caractères' });
+      return res.status(400).json({ error: 'Password must be at least 6 characters' });
     }
 
     const userRole = normalizeRole(role, 'learner');
@@ -796,7 +796,7 @@ module.exports = function createAdminRouter(db) {
       res.status(201).json({ user: enrichPublicUser(user) });
     } catch (err) {
       if (err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
-        return res.status(409).json({ error: 'Cet email est déjà utilisé' });
+        return res.status(409).json({ error: 'This email is already in use' });
       }
       throw err;
     }
@@ -807,7 +807,7 @@ module.exports = function createAdminRouter(db) {
     const user = db.prepare('SELECT id, email, role, company FROM users WHERE id = ?').get(req.params.id);
 
     if (!user) {
-      return res.status(404).json({ error: 'Utilisateur introuvable' });
+      return res.status(404).json({ error: 'User not found' });
     }
 
     const newRole = normalizeRole(role, user.role);
@@ -829,12 +829,12 @@ module.exports = function createAdminRouter(db) {
     if (email !== undefined) {
       newEmail = String(email).trim().toLowerCase();
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail) || /\s|=/.test(newEmail)) {
-        return res.status(400).json({ error: 'Adresse e-mail invalide' });
+        return res.status(400).json({ error: 'Invalid email address' });
       }
       if (newEmail !== user.email) {
         const taken = db.prepare('SELECT id FROM users WHERE email = ? AND id != ?').get(newEmail, user.id);
         if (taken) {
-          return res.status(409).json({ error: 'Cet email est déjà utilisé' });
+          return res.status(409).json({ error: 'This email is already in use' });
         }
       }
     }
@@ -845,7 +845,7 @@ module.exports = function createAdminRouter(db) {
     try {
       if (password) {
         if (password.length < 6) {
-          return res.status(400).json({ error: 'Le mot de passe doit contenir au moins 6 caractères' });
+          return res.status(400).json({ error: 'Password must be at least 6 characters' });
         }
         const hash = bcrypt.hashSync(password, 10);
         db.prepare('UPDATE users SET name = ?, email = ?, role = ?, approved = ?, is_instructor = ?, company = ?, password_hash = ? WHERE id = ?')
@@ -856,7 +856,7 @@ module.exports = function createAdminRouter(db) {
       }
     } catch (err) {
       if (err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
-        return res.status(409).json({ error: 'Cet email est déjà utilisé' });
+        return res.status(409).json({ error: 'This email is already in use' });
       }
       throw err;
     }
@@ -876,11 +876,11 @@ module.exports = function createAdminRouter(db) {
 
     const user = db.prepare('SELECT id, email, role FROM users WHERE id = ?').get(userId);
     if (!user) {
-      return res.status(404).json({ error: 'Utilisateur introuvable' });
+      return res.status(404).json({ error: 'User not found' });
     }
 
     if (isPrimaryAdmin(user)) {
-      return res.status(403).json({ error: 'L\'administrateur principal ne peut pas être supprimé' });
+      return res.status(403).json({ error: 'The primary administrator cannot be deleted' });
     }
 
     if (user.role === 'admin' && !canAssignAdminRole(req.user)) {
@@ -889,7 +889,7 @@ module.exports = function createAdminRouter(db) {
 
     try {
       deleteUserCompletely(db, userId);
-      res.json({ ok: true, message: 'Utilisateur supprimé' });
+      res.json({ ok: true, message: 'User deleted' });
     } catch (err) {
       res.status(400).json({ error: err.message || 'Impossible de supprimer cet utilisateur' });
     }
@@ -931,10 +931,10 @@ module.exports = function createAdminRouter(db) {
   router.post('/courses', (req, res) => {
     const { title, description, subject, duration_days: durationDays, evaluation_url: evaluationUrl } = req.body;
     if (!title?.trim()) {
-      return res.status(400).json({ error: 'Le titre est requis' });
+      return res.status(400).json({ error: 'Title is required' });
     }
     if (!subject || !isValidSubject(subject)) {
-      return res.status(400).json({ error: 'Un sujet valide est requis' });
+      return res.status(400).json({ error: 'A valid subject is required' });
     }
 
     const duration = Math.max(1, Math.min(60, parseInt(durationDays, 10) || 1));

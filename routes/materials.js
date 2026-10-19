@@ -44,10 +44,10 @@ function resolveSectionId(db, courseId, type, sectionId) {
     'SELECT id, type FROM material_sections WHERE id = ? AND course_id = ?'
   ).get(parsed, courseId);
   if (!section) {
-    throw new Error('Section introuvable');
+    throw new Error('Section not found');
   }
   if (section.type !== type) {
-    throw new Error('La section ne correspond pas au type de matériel');
+    throw new Error('Section does not match the material type');
   }
   return section.id;
 }
@@ -89,7 +89,7 @@ function insertMaterial(db, data) {
     return db.prepare(`SELECT ${MATERIAL_COLUMNS} FROM course_materials WHERE id = ?`).get(result.lastInsertRowid);
   } catch (err) {
     if (err.code === 'SQLITE_CONSTRAINT_FOREIGNKEY') {
-      throw new Error('Section introuvable ou invalide pour ce type de matériel');
+      throw new Error('Section not found or invalid for this material type');
     }
     throw err;
   }
@@ -102,11 +102,11 @@ module.exports = function createMaterialsRouter(db) {
     const courseId = req.params.courseId;
     const course = db.prepare('SELECT id FROM courses WHERE id = ?').get(courseId);
     if (!course) {
-      res.status(404).json({ error: 'Cours introuvable' });
+      res.status(404).json({ error: 'Course not found' });
       return false;
     }
     if (!canAccessCourse(db, req.user, courseId) && req.user.role === 'learner') {
-      res.status(403).json({ error: 'Inscrivez-vous au cours pour accéder au matériel' });
+      res.status(403).json({ error: 'Enroll in the course to access materials' });
       return false;
     }
     return true;
@@ -136,10 +136,10 @@ module.exports = function createMaterialsRouter(db) {
     ).get(req.params.materialId, req.params.courseId);
 
     if (!material || !canStreamMaterial(material)) {
-      return res.status(404).json({ error: 'Contenu introuvable' });
+      return res.status(404).json({ error: 'Content not found' });
     }
     if (!material.file_path || !fs.existsSync(material.file_path)) {
-      return res.status(404).json({ error: 'Fichier introuvable' });
+      return res.status(404).json({ error: 'File not found' });
     }
 
     const mimeType = material.type === 'videos'
@@ -156,10 +156,10 @@ module.exports = function createMaterialsRouter(db) {
     ).get(req.params.materialId, req.params.courseId);
 
     if (!material || !canStreamMaterial(material)) {
-      return res.status(404).json({ error: 'Contenu introuvable' });
+      return res.status(404).json({ error: 'Content not found' });
     }
     if (!material.file_path || !fs.existsSync(material.file_path)) {
-      return res.status(404).json({ error: 'Fichier introuvable' });
+      return res.status(404).json({ error: 'File not found' });
     }
 
     const { createStreamTicket } = require('../lib/stream-ticket');
@@ -178,11 +178,11 @@ module.exports = function createMaterialsRouter(db) {
     ).get(req.params.materialId, req.params.courseId);
 
     if (!material?.file_path || !fs.existsSync(material.file_path)) {
-      return res.status(404).json({ error: 'Fichier introuvable' });
+      return res.status(404).json({ error: 'File not found' });
     }
 
     if (INLINE_VIEW_TYPES.has(material.type) && req.user.role === 'learner') {
-      return res.status(403).json({ error: 'Consultez le contenu depuis le lecteur intégré' });
+      return res.status(403).json({ error: 'View the content in the built-in player' });
     }
 
     const filename = material.original_filename || path.basename(material.file_path);
@@ -195,7 +195,7 @@ module.exports = function createMaterialsRouter(db) {
   router.post('/upload-init', authRequired, requireInstructorOrAdmin(db), (req, res) => {
     const courseId = req.params.courseId;
     if (!canManageCourse(db, req.user, courseId)) {
-      return res.status(403).json({ error: 'Accès non autorisé' });
+      return res.status(403).json({ error: 'Access denied' });
     }
 
     const {
@@ -210,7 +210,7 @@ module.exports = function createMaterialsRouter(db) {
     } = req.body || {};
 
     if (!MATERIAL_TYPES.includes(type)) {
-      return res.status(400).json({ error: 'Type invalide (slides, videos, docs, labs)' });
+      return res.status(400).json({ error: 'Invalid type (slides, videos, docs, labs)' });
     }
 
     try {
@@ -249,7 +249,7 @@ module.exports = function createMaterialsRouter(db) {
 
       if (!canManageCourse(db, req.user, courseId)) {
         cleanupTemp();
-        return res.status(403).json({ error: 'Accès non autorisé' });
+        return res.status(403).json({ error: 'Access denied' });
       }
 
       if (!req.file) {
@@ -272,7 +272,7 @@ module.exports = function createMaterialsRouter(db) {
   router.post('/upload-complete', authRequired, requireInstructorOrAdmin(db), (req, res) => {
     const courseId = req.params.courseId;
     if (!canManageCourse(db, req.user, courseId)) {
-      return res.status(403).json({ error: 'Accès non autorisé' });
+      return res.status(403).json({ error: 'Access denied' });
     }
 
     const uploadId = req.body?.upload_id;
@@ -337,19 +337,19 @@ module.exports = function createMaterialsRouter(db) {
     const courseId = req.params.courseId;
     if (!canManageCourse(db, req.user, courseId)) {
       if (req.file) deleteStoredFile(req.file.path);
-      return res.status(403).json({ error: 'Accès non autorisé' });
+      return res.status(403).json({ error: 'Access denied' });
     }
 
     const { type, title, description, url, section_id } = req.body;
     if (!MATERIAL_TYPES.includes(type)) {
       if (req.file) deleteStoredFile(req.file.path);
-      return res.status(400).json({ error: 'Type invalide (slides, videos, docs, labs)' });
+      return res.status(400).json({ error: 'Invalid type (slides, videos, docs, labs)' });
     }
 
     const resolvedTitle = title?.trim() || req.file?.originalname || '';
     if (!resolvedTitle) {
       if (req.file) deleteStoredFile(req.file.path);
-      return res.status(400).json({ error: 'Le titre est requis' });
+      return res.status(400).json({ error: 'Title is required' });
     }
 
     if (!req.file && !url?.trim()) {
@@ -385,18 +385,18 @@ module.exports = function createMaterialsRouter(db) {
     const courseId = req.params.courseId;
     if (!canManageCourse(db, req.user, courseId)) {
       for (const file of req.files || []) deleteStoredFile(file.path);
-      return res.status(403).json({ error: 'Accès non autorisé' });
+      return res.status(403).json({ error: 'Access denied' });
     }
 
     const { type, description, section_id } = req.body;
     if (!MATERIAL_TYPES.includes(type)) {
       for (const file of req.files || []) deleteStoredFile(file.path);
-      return res.status(400).json({ error: 'Type invalide (slides, videos, docs, labs)' });
+      return res.status(400).json({ error: 'Invalid type (slides, videos, docs, labs)' });
     }
 
     const files = req.files || [];
     if (!files.length) {
-      return res.status(400).json({ error: 'Sélectionnez au moins un fichier' });
+      return res.status(400).json({ error: 'Select at least one file' });
     }
 
     let batchSectionId = null;
@@ -432,7 +432,7 @@ module.exports = function createMaterialsRouter(db) {
   router.put('/:materialId', authRequired, requireInstructorOrAdmin(db), (req, res) => {
     const { courseId, materialId } = req.params;
     if (!canManageCourse(db, req.user, courseId)) {
-      return res.status(403).json({ error: 'Accès non autorisé' });
+      return res.status(403).json({ error: 'Access denied' });
     }
 
     const material = db.prepare(
@@ -440,12 +440,12 @@ module.exports = function createMaterialsRouter(db) {
     ).get(materialId, courseId);
 
     if (!material) {
-      return res.status(404).json({ error: 'Élément introuvable' });
+      return res.status(404).json({ error: 'Item not found' });
     }
 
     const { title, description, url, order_index, section_id } = req.body;
     if (!title?.trim()) {
-      return res.status(400).json({ error: 'Le titre est requis' });
+      return res.status(400).json({ error: 'Title is required' });
     }
 
     let resolvedSectionId = material.section_id;
@@ -470,7 +470,7 @@ module.exports = function createMaterialsRouter(db) {
       );
     } catch (err) {
       if (err.code === 'SQLITE_CONSTRAINT_FOREIGNKEY') {
-        return res.status(400).json({ error: 'Section introuvable ou invalide pour ce type de matériel' });
+        return res.status(400).json({ error: 'Section not found or invalid for this material type' });
       }
       throw err;
     }
@@ -483,7 +483,7 @@ module.exports = function createMaterialsRouter(db) {
     const { courseId, materialId } = req.params;
     if (!canManageCourse(db, req.user, courseId)) {
       if (req.file) deleteStoredFile(req.file.path);
-      return res.status(403).json({ error: 'Accès non autorisé' });
+      return res.status(403).json({ error: 'Access denied' });
     }
 
     if (!req.file) {
@@ -496,7 +496,7 @@ module.exports = function createMaterialsRouter(db) {
 
     if (!material) {
       deleteStoredFile(req.file.path);
-      return res.status(404).json({ error: 'Élément introuvable' });
+      return res.status(404).json({ error: 'Item not found' });
     }
 
     deleteStoredFile(material.file_path);
@@ -514,7 +514,7 @@ module.exports = function createMaterialsRouter(db) {
   router.delete('/:materialId', authRequired, requireInstructorOrAdmin(db), (req, res) => {
     const { courseId, materialId } = req.params;
     if (!canManageCourse(db, req.user, courseId)) {
-      return res.status(403).json({ error: 'Accès non autorisé' });
+      return res.status(403).json({ error: 'Access denied' });
     }
 
     const material = db.prepare(
@@ -522,7 +522,7 @@ module.exports = function createMaterialsRouter(db) {
     ).get(materialId, courseId);
 
     if (!material) {
-      return res.status(404).json({ error: 'Élément introuvable' });
+      return res.status(404).json({ error: 'Item not found' });
     }
 
     deleteStoredFile(material.file_path);
@@ -541,7 +541,7 @@ module.exports = function createMaterialsRouter(db) {
     ).get(materialId, courseId);
 
     if (!material || !MATERIAL_TYPES.includes(material.type)) {
-      return res.status(404).json({ error: 'Élément introuvable' });
+      return res.status(404).json({ error: 'Item not found' });
     }
 
     recordMaterialViewEvent(db, {

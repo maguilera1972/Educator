@@ -23,10 +23,10 @@ async function loadProfile() {
 
   const statusEl = document.getElementById('gravatar-status');
   if (gravatar_available) {
-    statusEl.textContent = 'Gravatar détecté pour votre email';
+    statusEl.textContent = 'Gravatar detected for your email';
     statusEl.className = 'status ok';
   } else {
-    statusEl.textContent = 'Aucun Gravatar trouvé — choisissez un avatar générique ci-dessous';
+    statusEl.textContent = 'No Gravatar found — choose a generic avatar below';
     statusEl.className = 'status';
   }
 
@@ -95,7 +95,7 @@ document.getElementById('save-avatar').addEventListener('click', async () => {
     API.setUser(user);
     updateNav();
 
-    statusEl.textContent = 'Avatar enregistré';
+    statusEl.textContent = 'Avatar saved';
     statusEl.className = 'status ok';
     statusEl.hidden = false;
 
@@ -119,7 +119,7 @@ document.getElementById('save-bio').addEventListener('click', async () => {
       body: JSON.stringify({ profile_bio: html }),
     });
 
-    statusEl.textContent = 'Présentation enregistrée';
+    statusEl.textContent = 'Bio saved';
     statusEl.className = 'status ok';
     statusEl.hidden = false;
     bioEditor?.setHtml(profileBio || '');

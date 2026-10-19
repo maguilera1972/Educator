@@ -13,9 +13,9 @@ module.exports = function createQuizzesRouter(db) {
       WHERE q.id = ? AND q.module_id = ? AND m.course_id = ?
     `).get(req.params.quizId, req.params.moduleId, req.params.courseId);
 
-    if (!quiz) return res.status(404).json({ error: 'Quiz introuvable' });
+    if (!quiz) return res.status(404).json({ error: 'Quiz not found' });
     if (!canAccessCourse(db, req.user, req.params.courseId) && req.user.role === 'learner') {
-      return res.status(403).json({ error: 'Inscrivez-vous au cours pour y accéder' });
+      return res.status(403).json({ error: 'Enroll in the course to access it' });
     }
 
     const questions = db.prepare(
@@ -35,15 +35,15 @@ module.exports = function createQuizzesRouter(db) {
   router.post('/', authRequired, requireInstructorOrAdmin(db), (req, res) => {
     const { courseId, moduleId } = req.params;
     if (!canManageCourse(db, req.user, courseId)) {
-      return res.status(403).json({ error: 'Accès non autorisé' });
+      return res.status(403).json({ error: 'Access denied' });
     }
 
     const mod = db.prepare('SELECT id FROM modules WHERE id = ? AND course_id = ?').get(moduleId, courseId);
-    if (!mod) return res.status(404).json({ error: 'Module introuvable' });
+    if (!mod) return res.status(404).json({ error: 'Module not found' });
 
     const { title, questions } = req.body;
     if (!title?.trim()) {
-      return res.status(400).json({ error: 'Le titre est requis' });
+      return res.status(400).json({ error: 'Title is required' });
     }
 
     const insertQuiz = db.prepare('INSERT INTO quizzes (module_id, title) VALUES (?, ?)');
@@ -78,7 +78,7 @@ module.exports = function createQuizzesRouter(db) {
   router.put('/:quizId', authRequired, requireInstructorOrAdmin(db), (req, res) => {
     const { courseId, moduleId, quizId } = req.params;
     if (!canManageCourse(db, req.user, courseId)) {
-      return res.status(403).json({ error: 'Accès non autorisé' });
+      return res.status(403).json({ error: 'Access denied' });
     }
 
     const quiz = db.prepare(`
@@ -87,11 +87,11 @@ module.exports = function createQuizzesRouter(db) {
       WHERE q.id = ? AND q.module_id = ? AND m.course_id = ?
     `).get(quizId, moduleId, courseId);
 
-    if (!quiz) return res.status(404).json({ error: 'Quiz introuvable' });
+    if (!quiz) return res.status(404).json({ error: 'Quiz not found' });
 
     const { title, questions } = req.body;
     if (!title?.trim()) {
-      return res.status(400).json({ error: 'Le titre est requis' });
+      return res.status(400).json({ error: 'Title is required' });
     }
 
     const updateQuiz = db.transaction(() => {
@@ -121,7 +121,7 @@ module.exports = function createQuizzesRouter(db) {
   router.delete('/:quizId', authRequired, requireInstructorOrAdmin(db), (req, res) => {
     const { courseId, moduleId, quizId } = req.params;
     if (!canManageCourse(db, req.user, courseId)) {
-      return res.status(403).json({ error: 'Accès non autorisé' });
+      return res.status(403).json({ error: 'Access denied' });
     }
 
     const quiz = db.prepare(`
@@ -130,7 +130,7 @@ module.exports = function createQuizzesRouter(db) {
       WHERE q.id = ? AND q.module_id = ? AND m.course_id = ?
     `).get(quizId, moduleId, courseId);
 
-    if (!quiz) return res.status(404).json({ error: 'Quiz introuvable' });
+    if (!quiz) return res.status(404).json({ error: 'Quiz not found' });
 
     db.prepare('DELETE FROM quizzes WHERE id = ?').run(quizId);
     res.json({ ok: true });
@@ -145,7 +145,7 @@ module.exports = function createQuizzesRouter(db) {
     ).all(quizId);
 
     if (!questions.length) {
-      return res.status(404).json({ error: 'Quiz introuvable ou sans questions' });
+      return res.status(404).json({ error: 'Quiz not found ou sans questions' });
     }
 
     let correct = 0;

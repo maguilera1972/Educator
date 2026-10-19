@@ -1,19 +1,19 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <link rel="icon" type="image/png" href="/images/favicon.png" data-app-favicon>
-  <title>Connexion — LMS-Educator</title>
-  <link rel="stylesheet" href="/css/style.css?v=56">
-  <script src="/js/config.js?v=3"></script>
-  <script src="/js/i18n.js?v=3"></script>
+  <title>Login — ALSO LMS</title>
+  <link rel="stylesheet" href="/css/style.css?v=58">
+  <script src="/js/config.js?v=4"></script>
+  <script src="/js/i18n.js?v=4"></script>
   <script src="/js/i18n-catalog.js?v=1"></script>
 </head>
-<body data-page-title-key="login.title" data-page-title="Connexion" class="auth-layout">
+<body data-page-title-key="login.title" data-page-title="Login" class="auth-layout">
   <header class="header header--minimal">
     <div class="container">
-      <nav><a href="/register.html" data-i18n="nav.createAccount">Créer un compte</a></nav>
+      <nav><a href="/register.html" data-i18n="nav.createAccount">Create an account</a></nav>
     </div>
   </header>
 
@@ -24,19 +24,19 @@
         <span class="logo-wordmark"><span class="logo-wordmark-lms">LMS</span><span class="logo-wordmark-educator">-Educator</span></span>
       </a>
       <form class="auth-form card" id="login-form">
-      <h2 data-i18n="login.title">Connexion</h2>
+      <h2 data-i18n="login.title">Log in</h2>
       <p id="session-hint" class="status ok" hidden></p>
       <div class="field">
         <label for="email" data-i18n="login.email">Email</label>
         <input type="email" id="email" required autocomplete="email">
       </div>
       <div class="field">
-        <label for="password" data-i18n="login.password">Mot de passe</label>
+        <label for="password" data-i18n="login.password">Password</label>
         <input type="password" id="password" required autocomplete="current-password">
       </div>
       <p id="error" class="status error" hidden></p>
-      <button type="submit" class="btn-primary btn-block" data-i18n="login.submit">Se connecter</button>
-      <p class="auth-link"><span data-i18n="login.noAccount">Pas encore de compte ?</span> <a href="/register.html" data-i18n="login.signUp">S'inscrire</a></p>
+      <button type="submit" class="btn-primary btn-block" data-i18n="login.submit">Log in</button>
+      <p class="auth-link"><span data-i18n="login.noAccount">No account yet?</span> <a href="/register.html" data-i18n="login.signUp">Sign up</a></p>
       </form>
     </div>
   </main>
@@ -48,7 +48,7 @@
     const reason = params.get('reason');
     const hint = document.getElementById('session-hint');
     if (reason === 'session') {
-      hint.textContent = (typeof t === 'function' ? t('login.sessionExpired') : 'Votre session a expiré ou a été réinitialisée. Veuillez vous reconnecter.');
+      hint.textContent = (typeof t === 'function' ? t('login.sessionExpired') : 'Your session expired or was reset. Please sign in again.');
       hint.hidden = false;
       API.clearToken();
     }

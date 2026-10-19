@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <link rel="icon" type="image/png" href="/images/favicon.png" data-app-favicon>
-  <title>Cours — LMS-Educator</title>
-  <link rel="stylesheet" href="/css/style.css?v=56">
-  <script src="/js/config.js?v=3"></script>
-  <script src="/js/i18n.js?v=3"></script>
+  <title>Courses — ALSO LMS</title>
+  <link rel="stylesheet" href="/css/style.css?v=58">
+  <script src="/js/config.js?v=4"></script>
+  <script src="/js/i18n.js?v=4"></script>
   <script src="/js/i18n-catalog.js?v=1"></script>
 </head>
-<body data-page-title-key="nav.courses" data-page-title="Cours">
+<body data-page-title-key="nav.courses" data-page-title="Courses">
   <header class="header">
     <div class="container">
       <a href="/" class="logo brand-logo">
@@ -18,11 +18,11 @@
         <span class="logo-wordmark"><span class="logo-wordmark-lms">LMS</span><span class="logo-wordmark-educator">-Educator</span></span>
       </a>
       <nav>
-        <a href="/courses.html" id="nav-courses" data-i18n="nav.courses">Cours</a>
-        <a href="/dashboard.html" id="nav-dashboard" data-i18n="nav.dashboard">Tableau de bord</a>
+        <a href="/courses.html" id="nav-courses" data-i18n="nav.courses">Courses</a>
+        <a href="/dashboard.html" id="nav-dashboard" data-i18n="nav.dashboard">Dashboard</a>
         <a href="/admin.html" id="nav-admin" style="display:none" data-i18n="nav.admin">Administration</a>
         <span id="nav-user" class="nav-user"></span>
-        <a href="#" id="logout-btn" class="nav-logout" hidden data-i18n="nav.logout">Déconnexion</a>
+        <a href="#" id="logout-btn" class="nav-logout" hidden data-i18n="nav.logout">Log out</a>
       </nav>
     </div>
   </header>
@@ -31,9 +31,9 @@
     <header class="page-header">
       <div class="page-title-wrap">
         <span id="page-subject-logo-wrap" class="subject-header-logo-wrap" hidden></span>
-        <h2 id="page-title" data-i18n="courses.title">Catalogue des cours</h2>
+        <h2 id="page-title" data-i18n="courses.title">Course catalog</h2>
       </div>
-      <button class="btn-primary" id="create-course-btn" hidden data-i18n="courses.newCourse">+ Nouveau cours</button>
+      <button class="btn-primary" id="create-course-btn" hidden data-i18n="courses.newCourse">+ New course</button>
     </header>
 
     <p id="catalog-intro" class="catalog-intro" hidden></p>
@@ -44,13 +44,13 @@
     <div id="subject-grid" class="subject-grid" hidden></div>
 
     <form class="card form-card" id="create-form" hidden>
-      <h3 data-i18n="courses.createTitle">Créer un cours</h3>
+      <h3 data-i18n="courses.createTitle">Create a course</h3>
       <div class="field">
-        <label for="course-subject" data-i18n="courses.subject">Sujet</label>
+        <label for="course-subject" data-i18n="courses.subject">Subject</label>
         <select id="course-subject" required></select>
       </div>
       <div class="field">
-        <label for="course-title" data-i18n="courses.courseTitle">Titre</label>
+        <label for="course-title" data-i18n="courses.courseTitle">Title</label>
         <input type="text" id="course-title" required>
       </div>
       <div class="field">
@@ -58,8 +58,8 @@
         <textarea id="course-desc" rows="3"></textarea>
       </div>
       <div class="form-actions">
-        <button type="submit" class="btn-primary" data-i18n="courses.create">Créer</button>
-        <button type="button" class="btn-secondary" id="cancel-create" data-i18n="courses.cancel">Annuler</button>
+        <button type="submit" class="btn-primary" data-i18n="courses.create">Create</button>
+        <button type="button" class="btn-secondary" id="cancel-create" data-i18n="courses.cancel">Cancel</button>
       </div>
       <p id="create-error" class="status error" hidden></p>
     </form>
@@ -100,7 +100,7 @@
     let subjectsCatalog = [];
 
     if (manageMode) {
-      document.getElementById('page-title').textContent = typeof t === 'function' ? t('catalog.manageTitle') : 'Gérer mes cours';
+      document.getElementById('page-title').textContent = typeof t === 'function' ? t('catalog.manageTitle') : 'Manage my courses';
       document.getElementById('page-title').removeAttribute('data-i18n');
       if (user.role === 'admin') {
         document.getElementById('create-course-btn').hidden = false;
@@ -126,9 +126,9 @@
       const instructorView = options.manage && user.role !== 'admin';
       const microsoftBadges = course.subject === 'microsoft' ? microsoftCourseBadges(course) : '';
       const badgeRow = microsoftBadges || (subjectLabel ? `<span class="subject-badge">${subjectLabel}</span>` : '');
-      const noDesc = typeof t === 'function' ? t('catalog.noDescription') : 'Aucune description';
+      const noDesc = typeof t === 'function' ? t('catalog.noDescription') : 'No description';
       const enrolled = typeof t === 'function' ? t('catalog.enrolledCount', { n: course.enrollment_count || 0 }) : `${course.enrollment_count || 0} inscrit(s)`;
-      const openLabel = typeof t === 'function' ? (options.manage ? t('catalog.manage') : t('catalog.open')) : (options.manage ? 'Gérer' : 'Ouvrir');
+      const openLabel = typeof t === 'function' ? (options.manage ? t('catalog.manage') : t('catalog.open')) : (options.manage ? 'Manage' : 'Ouvrir');
       const assignHint = typeof t === 'function' ? t('catalog.assignByAdmin') : "Assignation par l'administrateur";
       return `
         <article class="card course-card${instructorView ? ' course-card--instructor' : ''}${course.subject === 'microsoft' ? ' course-card--microsoft' : ''}">
@@ -158,7 +158,7 @@
       const subsections = groupCoursesByMicrosoftSubsection(subject.courses || []);
       document.getElementById('catalog-intro').hidden = false;
       document.getElementById('catalog-intro').textContent =
-        typeof t === 'function' ? t('catalog.introMicrosoft') : 'Parcours de certification Microsoft organisés selon le poster officiel : fondamentaux, role-based training par domaine et spécialités.';
+        typeof t === 'function' ? t('catalog.introMicrosoft') : 'Microsoft certification paths organized per the official poster: fundamentals, role-based training by domain, and specialties.';
 
       sectionsEl.innerHTML = renderMicrosoftCatalogSections(subsections, (course) =>
         renderCourseCard({ ...course, subject_label: subject.label }, { enrolled: enrolledIds.has(course.id) })
@@ -186,7 +186,7 @@
       const intro = document.getElementById('catalog-intro');
       grid.hidden = false;
       intro.hidden = false;
-      intro.textContent = typeof t === 'function' ? t('catalog.introSubjects') : 'Parcourez les domaines de formation. Les cours seront organisés par sujet au fur et à mesure de leur création.';
+      intro.textContent = typeof t === 'function' ? t('catalog.introSubjects') : 'Browse training domains. Courses will be organized by subject as they are created.';
 
       grid.innerHTML = subjectsCatalog.map((s) =>
         renderSubjectCatalogCard(enrichSubject(s), { activeId: activeSubject })
@@ -283,8 +283,8 @@
 
         if (!list.length) {
           empty.textContent = user.role === 'admin'
-            ? (typeof t === 'function' ? t('catalog.emptyManageAdmin') : 'Aucune formation. Créez un cours puis assignez-le à un formateur.')
-            : (typeof t === 'function' ? t('catalog.emptyManageInstructor') : 'Aucune formation ne vous a encore été assignée par l\'administrateur.');
+            ? (typeof t === 'function' ? t('catalog.emptyManageAdmin') : 'No courses. Create a course then assign it to an instructor.')
+            : (typeof t === 'function' ? t('catalog.emptyManageInstructor') : 'No courses have been assigned to you by the administrator yet.');
           empty.hidden = false;
           grid.innerHTML = '';
           return;
@@ -314,7 +314,7 @@
         if (!courses.length) {
           empty.textContent = typeof t === 'function'
             ? t('catalog.emptySubject', { label: subject.label })
-            : `Aucun cours publié pour « ${subject.label} » pour le moment. Le catalogue est en préparation.`;
+            : `No courses published for “${subject.label}” yet. The catalog is being prepared.`;
           empty.hidden = false;
           grid.hidden = false;
           grid.innerHTML = '';
@@ -374,16 +374,16 @@
       document.getElementById('create-course-btn').onclick = () => {
         window.location.href = '/courses.html?manage=1';
       };
-      document.getElementById('create-course-btn').textContent = typeof t === 'function' ? t('catalog.manageTitle') : '+ Gérer mes cours';
+      document.getElementById('create-course-btn').textContent = typeof t === 'function' ? t('catalog.manageTitle') : '+ Manage my courses';
     }
 
     document.addEventListener('lms:localechange', () => {
       if (manageMode) {
-        document.getElementById('page-title').textContent = typeof t === 'function' ? t('catalog.manageTitle') : 'Gérer mes cours';
+        document.getElementById('page-title').textContent = typeof t === 'function' ? t('catalog.manageTitle') : 'Manage my courses';
       }
       if (isInstructor && !manageMode && !activeSubject) {
         const btn = document.getElementById('create-course-btn');
-        if (btn) btn.textContent = typeof t === 'function' ? t('catalog.manageTitle') : '+ Gérer mes cours';
+        if (btn) btn.textContent = typeof t === 'function' ? t('catalog.manageTitle') : '+ Manage my courses';
       }
       loadCatalog();
     });

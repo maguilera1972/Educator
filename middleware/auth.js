@@ -96,7 +96,7 @@ function authFromHeaderOrQuery(req, res, next) {
 function requireRole(...roles) {
   return (req, res, next) => {
     if (!req.user || !roles.includes(req.user.role)) {
-      return res.status(403).json({ error: 'Accès non autorisé' });
+      return res.status(403).json({ error: 'Access unauthorized' });
     }
     next();
   };
@@ -125,12 +125,12 @@ function attachUserFromDb(db) {
 function requireInstructorOrAdmin(db) {
   return (req, res, next) => {
     if (!req.user?.id) {
-      return res.status(403).json({ error: 'Accès non autorisé' });
+      return res.status(403).json({ error: 'Access unauthorized' });
     }
 
     const row = db.prepare('SELECT role, approved, is_instructor FROM users WHERE id = ?').get(req.user.id);
     if (!row) {
-      return res.status(403).json({ error: 'Accès non autorisé' });
+      return res.status(403).json({ error: 'Access unauthorized' });
     }
 
     if (row.role === 'admin' || row.is_instructor) {
@@ -144,7 +144,7 @@ function requireInstructorOrAdmin(db) {
       return res.status(403).json({
         error: row.role === 'instructor'
           ? 'Votre compte formateur doit être validé par un administrateur'
-          : 'Accès non autorisé',
+          : 'Access unauthorized',
       });
     }
 

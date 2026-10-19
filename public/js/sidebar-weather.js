@@ -118,8 +118,8 @@ function renderWeatherPrompt() {
   if (!root) return;
   root.innerHTML = `
     <div class="sidebar-weather-body sidebar-weather-body--prompt">
-      <p class="sidebar-weather-title">${escapeHtml(wt('weather.title', 'Météo locale'))}</p>
-      <p class="sidebar-weather-text">${escapeHtml(wt('weather.promptText', 'Autorisez votre position pour afficher la météo actuelle.'))}</p>
+      <p class="sidebar-weather-title">${escapeHtml(wt('weather.title', 'Local weather'))}</p>
+      <p class="sidebar-weather-text">${escapeHtml(wt('weather.promptText', 'Allow your location to show the current weather.'))}</p>
       <div class="sidebar-weather-actions">
         <button type="button" class="sidebar-weather-btn" id="sidebar-weather-enable">${escapeHtml(wt('weather.enableGps', 'Autoriser ma position'))}</button>
         <button type="button" class="sidebar-weather-btn sidebar-weather-btn--secondary" id="sidebar-weather-approx">${escapeHtml(wt('weather.approx', 'Position approximative'))}</button>
@@ -140,7 +140,7 @@ function renderWeatherLoading(message) {
   const text = message || wt('weather.loading', 'Localisation et chargement en cours…');
   root.innerHTML = `
     <div class="sidebar-weather-body sidebar-weather-body--loading">
-      <p class="sidebar-weather-title">${escapeHtml(wt('weather.title', 'Météo locale'))}</p>
+      <p class="sidebar-weather-title">${escapeHtml(wt('weather.title', 'Local weather'))}</p>
       <p class="sidebar-weather-text">${escapeHtml(text)}</p>
     </div>
   `;
@@ -152,10 +152,10 @@ function renderWeatherError(message, options = {}) {
   const { showApproximate = true, showRetry = true } = options;
   root.innerHTML = `
     <div class="sidebar-weather-body sidebar-weather-body--error">
-      <p class="sidebar-weather-title">${escapeHtml(wt('weather.title', 'Météo locale'))}</p>
+      <p class="sidebar-weather-title">${escapeHtml(wt('weather.title', 'Local weather'))}</p>
       <p class="sidebar-weather-text">${escapeHtml(message)}</p>
       <div class="sidebar-weather-actions">
-        ${showRetry ? `<button type="button" class="sidebar-weather-btn" id="sidebar-weather-retry">${escapeHtml(wt('weather.retry', 'Réessayer'))}</button>` : ''}
+        ${showRetry ? `<button type="button" class="sidebar-weather-btn" id="sidebar-weather-retry">${escapeHtml(wt('weather.retry', 'Retry'))}</button>` : ''}
         ${showApproximate ? `<button type="button" class="sidebar-weather-btn sidebar-weather-btn--secondary" id="sidebar-weather-approx">${escapeHtml(wt('weather.approx', 'Position approximative'))}</button>` : ''}
       </div>
     </div>
@@ -196,10 +196,10 @@ function renderWeatherData(data) {
       </div>
       <div class="sidebar-weather-meta">
         <span>${escapeHtml(wt('weather.feelsLike', { n: feels }, `Ressenti ${feels}°`))}</span>
-        <span>${escapeHtml(wt('weather.humidity', { n: humidity }, `Humidité ${humidity}%`))}</span>
+        <span>${escapeHtml(wt('weather.humidity', { n: humidity }, `Humidity ${humidity}%`))}</span>
         <span>${escapeHtml(wt('weather.wind', { n: wind }, `Vent ${wind} km/h`))}</span>
       </div>
-      <button type="button" class="sidebar-weather-refresh" id="sidebar-weather-refresh" title="${escapeHtml(wt('weather.refreshTitle', 'Actualiser la météo'))}">↻</button>
+      <button type="button" class="sidebar-weather-refresh" id="sidebar-weather-refresh" title="${escapeHtml(wt('weather.refreshTitle', 'Refresh weather'))}">↻</button>
     </div>
   `;
 
@@ -226,10 +226,10 @@ async function fetchWeatherForecast(lat, lon) {
     wind_speed_unit: 'kmh',
   });
   const res = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`);
-  if (!res.ok) throw new Error(wt('weather.unavailable', 'Météo indisponible'));
+  if (!res.ok) throw new Error(wt('weather.unavailable', 'Weather unavailable'));
   const data = await res.json();
   const current = data.current;
-  if (!current) throw new Error(wt('weather.incomplete', 'Données météo incomplètes'));
+  if (!current) throw new Error(wt('weather.incomplete', 'Incomplete weather data'));
   return current;
 }
 
@@ -266,17 +266,17 @@ async function loadWeatherForCoords(lat, lon, options = {}) {
 }
 
 function getGeolocationErrorMessage(error) {
-  if (!error) return wt('weather.geoUnavailable', "Impossible d'obtenir votre position.");
+  if (!error) return wt('weather.geoUnavailable', "Unable to get your location.");
   if (error.code === 1) {
-    return wt('weather.geoDenied', 'Accès GPS refusé ou indisponible. Utilisez la position approximative ou autorisez la localisation dans les paramètres du navigateur.');
+    return wt('weather.geoDenied', 'GPS access denied or unavailable. Use approximate location or allow location in browser settings.');
   }
   if (error.code === 2) {
-    return wt('weather.geoMissing', 'Position indisponible. Réessayez ou utilisez la position approximative.');
+    return wt('weather.geoMissing', 'Location unavailable. Retry or use approximate location.');
   }
   if (error.code === 3) {
-    return wt('weather.geoTimeout', 'Délai dépassé pour obtenir votre position.');
+    return wt('weather.geoTimeout', 'Timed out getting your location.');
   }
-  return error.message || wt('weather.geoUnavailable', "Impossible d'obtenir votre position.");
+  return error.message || wt('weather.geoUnavailable', "Unable to get your location.");
 }
 
 function isSecureContext() {
@@ -293,7 +293,7 @@ function requestPreciseLocationAndWeather(forceRefresh = false) {
   }
 
   if (!forceRefresh && hasStoredLocation(cache)) {
-    renderWeatherLoading(wt('weather.refreshing', 'Actualisation de la météo…'));
+    renderWeatherLoading(wt('weather.refreshing', 'Updating weather…'));
     loadWeatherForCoords(cache.lat, cache.lon, {
       city: cache.city,
       approximate: !!cache.approximate,
@@ -303,7 +303,7 @@ function requestPreciseLocationAndWeather(forceRefresh = false) {
 
   const pref = readWeatherPref();
   if (!forceRefresh && pref && Number.isFinite(pref.lat) && Number.isFinite(pref.lon)) {
-    renderWeatherLoading(wt('weather.refreshing', 'Actualisation de la météo…'));
+    renderWeatherLoading(wt('weather.refreshing', 'Updating weather…'));
     loadWeatherForCoords(pref.lat, pref.lon, {
       city: pref.city,
       approximate: !!pref.approximate,
@@ -331,7 +331,7 @@ function requestPreciseLocationAndWeather(forceRefresh = false) {
             renderWeatherData(cache);
             return;
           }
-          renderWeatherError(err.message || wt('weather.loadError', 'Impossible de charger la météo.'));
+          renderWeatherError(err.message || wt('weather.loadError', 'Unable to load weather.'));
         });
     },
     (err) => {
@@ -373,7 +373,7 @@ async function requestApproximateLocationAndWeather(forceRefresh = false) {
 
   try {
     if (typeof API === 'undefined' || !API.getToken()) {
-      throw new Error(wt('weather.loginRequired', 'Connectez-vous pour afficher la météo.'));
+      throw new Error(wt('weather.loginRequired', 'Sign in to show the weather.'));
     }
     const location = await API.request('/api/weather/approx-location');
     await loadWeatherForCoords(location.lat, location.lon, {
@@ -417,7 +417,7 @@ function refreshWeatherFromPreference(forceRefresh = false) {
     const lon = cache?.lon ?? pref.lon;
     const city = cache?.city ?? pref.city;
     const approximate = !!(cache?.approximate ?? pref.approximate);
-    renderWeatherLoading(wt('weather.refreshing', 'Actualisation de la météo…'));
+    renderWeatherLoading(wt('weather.refreshing', 'Updating weather…'));
     loadWeatherForCoords(lat, lon, { city, approximate })
       .catch(() => {
         if (pref?.mode === 'precise') requestPreciseLocationAndWeather(true);

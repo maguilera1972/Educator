@@ -1,9 +1,9 @@
 const APP_CONFIG = {
-  name: 'LMS-Educator',
-  tagline: "Plateforme d'apprentissage",
-  footer: 'Base de données, authentification et gestion des cours actives',
-  siteUrl: 'https://lms-educator.eureka-training.online',
-  logoEmblemUrl: '/images/logo-emblem.svg',
+  name: 'ALSO LMS',
+  tagline: 'Collaborative training platform',
+  footer: 'ALSO Group training',
+  siteUrl: 'https://alsolms.eureka-training.online',
+  logoEmblemUrl: '/images/logo.png',
   faviconUrl: '/images/favicon.png',
 };
 

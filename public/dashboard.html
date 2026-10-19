@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <link rel="icon" type="image/png" href="/images/favicon.png" data-app-favicon>
-  <title>Tableau de bord — LMS-Educator</title>
-  <link rel="stylesheet" href="/css/style.css?v=56">
-  <script src="/js/config.js?v=3"></script>
-  <script src="/js/i18n.js?v=3"></script>
+  <title>Dashboard — ALSO LMS</title>
+  <link rel="stylesheet" href="/css/style.css?v=58">
+  <script src="/js/config.js?v=4"></script>
+  <script src="/js/i18n.js?v=4"></script>
   <script src="/js/i18n-catalog.js?v=1"></script>
 </head>
-<body data-page-title-key="dashboard.title" data-page-title="Tableau de bord">
+<body data-page-title-key="dashboard.title" data-page-title="Dashboard">
   <header class="header">
     <div class="container">
       <a href="/" class="logo brand-logo">
@@ -18,18 +18,18 @@
         <span class="logo-wordmark"><span class="logo-wordmark-lms">LMS</span><span class="logo-wordmark-educator">-Educator</span></span>
       </a>
       <nav>
-        <a href="/courses.html" id="nav-courses" data-i18n="nav.courses">Cours</a>
-        <a href="/dashboard.html" id="nav-dashboard" data-i18n="nav.dashboard">Tableau de bord</a>
+        <a href="/courses.html" id="nav-courses" data-i18n="nav.courses">Courses</a>
+        <a href="/dashboard.html" id="nav-dashboard" data-i18n="nav.dashboard">Dashboard</a>
         <a href="/admin.html" id="nav-admin" style="display:none" data-i18n="nav.admin">Administration</a>
         <span id="nav-user" class="nav-user"></span>
-        <a href="#" id="logout-btn" class="nav-logout" hidden data-i18n="nav.logout">Déconnexion</a>
+        <a href="#" id="logout-btn" class="nav-logout" hidden data-i18n="nav.logout">Log out</a>
       </nav>
     </div>
   </header>
 
   <main class="container page">
     <header class="page-header">
-      <h2 data-i18n="dashboard.title">Tableau de bord</h2>
+      <h2 data-i18n="dashboard.title">Dashboard</h2>
     </header>
 
     <section class="section" id="profile-section">
@@ -37,7 +37,7 @@
         <img id="dashboard-avatar" class="avatar avatar-lg" src="/avatars/generic-0.svg" alt="">
         <div>
           <p id="welcome" class="muted"></p>
-          <a href="/profile.html" class="btn-secondary btn-sm" data-i18n="dashboard.editProfile">Modifier mon profil</a>
+          <a href="/profile.html" class="btn-secondary btn-sm" data-i18n="dashboard.editProfile">Edit my profile</a>
         </div>
       </div>
     </section>
@@ -47,30 +47,30 @@
 
     <section class="section">
       <div class="section-header">
-        <h3 data-i18n="dashboard.myCourses">Mes cours</h3>
-        <a href="/courses.html" class="btn-secondary" id="browse-btn" data-i18n="dashboard.browseCatalog">Parcourir le catalogue</a>
+        <h3 data-i18n="dashboard.myCourses">My courses</h3>
+        <a href="/courses.html" class="btn-secondary" id="browse-btn" data-i18n="dashboard.browseCatalog">Browse catalog</a>
       </div>
       <div id="my-courses" class="course-grid"></div>
-      <p id="no-courses" class="muted" hidden data-i18n="dashboard.noCourses">Aucun cours pour le moment.</p>
+      <p id="no-courses" class="muted" hidden data-i18n="dashboard.noCourses">No courses yet.</p>
     </section>
 
     <section class="section" id="admin-section" hidden>
       <div class="section-header">
         <h3 data-i18n="dashboard.admin">Administration</h3>
-        <a href="/admin.html" class="btn-primary" data-i18n="dashboard.adminPanel">Panneau d'administration</a>
+        <a href="/admin.html" class="btn-primary" data-i18n="dashboard.adminPanel">Admin panel</a>
       </div>
-      <p class="muted" data-i18n="dashboard.adminHint">Gérez les utilisateurs, les rôles et l'ensemble des cours de la plateforme.</p>
+      <p class="muted" data-i18n="dashboard.adminHint">Manage users, roles and all courses on the platform.</p>
     </section>
 
     <section class="section" id="instructor-section" hidden>
       <div class="section-header">
-        <h3 data-i18n="dashboard.instructorCourses">Mes formations (formateur)</h3>
-        <a href="/courses.html?manage=1" class="btn-primary" data-i18n="dashboard.manageCourses">Gérer mes cours</a>
+        <h3 data-i18n="dashboard.instructorCourses">My trainings (instructor)</h3>
+        <a href="/courses.html?manage=1" class="btn-primary" data-i18n="dashboard.manageCourses">Manage my courses</a>
       </div>
       <div id="instructor-courses" class="course-grid"></div>
       <div id="instructor-replacements" class="teaching-replacements" hidden>
-        <h4 data-i18n="dashboard.replacements">Remplacements</h4>
-        <p class="muted" data-i18n="dashboard.replacementsHint">Indiquez les jours de votre planning pour lesquels vous aurez besoin d'un remplaçant. L'administrateur pourra ensuite assigner un formateur sur ces dates.</p>
+        <h4 data-i18n="dashboard.replacements">Replacements</h4>
+        <p class="muted" data-i18n="dashboard.replacementsHint">Select the days in your schedule for which you need a substitute. An administrator can then assign an instructor for those dates.</p>
         <div id="instructor-replacement-list"></div>
       </div>
     </section>
@@ -88,7 +88,7 @@
 
     function renderWelcome() {
       document.getElementById('welcome').textContent =
-        (typeof t === 'function' ? t('dashboard.welcome', { name: user.name, roles: displayRoles(user) }) : `Bienvenue, ${user.name} — profil : ${displayRoles(user)}`);
+        (typeof t === 'function' ? t('dashboard.welcome', { name: user.name, roles: displayRoles(user) }) : `Welcome, ${user.name} — profile: ${displayRoles(user)}`);
     }
 
     function renderAvatar() {
@@ -140,9 +140,9 @@
         if (status === 'upcoming') return t('dashboard.status.upcoming');
         return t('dashboard.status.default');
       }
-      if (status === 'completed') return 'Session terminée — contenu toujours accessible';
+      if (status === 'completed') return 'Session ended — content still available';
       if (status === 'active') return 'Session en cours';
-      if (status === 'upcoming') return 'Session à venir';
+      if (status === 'upcoming') return 'Upcoming session';
       return 'Contenu accessible';
     }
 
@@ -151,8 +151,8 @@
       const subjectBadge = c.subject_label
         ? `<span class="subject-badge">${c.subject_label}</span>`
         : '';
-      const noDesc = typeof t === 'function' ? t('catalog.noDescription') : 'Aucune description';
-      const accessLabel = typeof t === 'function' ? t('dashboard.accessContent') : 'Accéder au contenu';
+      const noDesc = typeof t === 'function' ? t('catalog.noDescription') : 'No description';
+      const accessLabel = typeof t === 'function' ? t('dashboard.accessContent') : 'Access content';
       return `
         <article class="card course-card">
           ${subjectBadge}
@@ -196,10 +196,10 @@
           if (isPendingLearner(user)) {
             noCourses.textContent = typeof t === 'function'
               ? t('dashboard.pendingLearner')
-              : 'Votre compte doit être validé par un administrateur qui vous assignera vos formations.';
+              : 'Your account must be approved by an administrator who will assign your courses.';
             noCourses.hidden = false;
           } else if (!courses.length) {
-            noCourses.textContent = typeof t === 'function' ? t('dashboard.noAssigned') : 'Aucune formation ne vous a encore été assignée.';
+            noCourses.textContent = typeof t === 'function' ? t('dashboard.noAssigned') : 'No courses have been assigned to you yet.';
             noCourses.hidden = false;
           } else {
             grid.innerHTML = courses.map((c) =>
@@ -213,7 +213,7 @@
           const instGrid = document.getElementById('instructor-courses');
           instGrid.innerHTML = teachingCourses.length
             ? teachingCourses.map((c) => renderInstructorCourseCard(c)).join('')
-            : `<p class="muted">${typeof t === 'function' ? t('dashboard.noTeaching') : "Aucune formation ne vous a encore été assignée par l'administrateur."}</p>`;
+            : `<p class="muted">${typeof t === 'function' ? t('dashboard.noTeaching') : "No courses have been assigned to you by the administrator yer."}</p>`;
 
           await loadInstructorReplacements();
         }
@@ -249,7 +249,7 @@
           return `
             <div class="teaching-replacement-card" data-replacement-course="${assignment.course_id}">
               <h4>${assignment.title}</h4>
-              <p class="muted">${typeof t === 'function' ? t('dashboard.plannedDays', { n: assignment.session_dates.length }) : `${assignment.session_dates.length} jour(s) planifié(s)`}</p>
+              <p class="muted">${typeof t === 'function' ? t('dashboard.plannedDays', { n: assignment.session_dates.length }) : `${assignment.session_dates.length} day(s) scheduled`}</p>
               <ul class="replacement-day-list">
                 ${assignment.session_dates.map((date) => `
                   <li>
@@ -261,7 +261,7 @@
                 `).join('')}
               </ul>
               <button type="button" class="btn-secondary btn-sm" data-save-replacement="${assignment.course_id}">
-                ${typeof t === 'function' ? t('dashboard.saveReplacementDays') : 'Enregistrer les jours à remplacer'}
+                ${typeof t === 'function' ? t('dashboard.saveReplacementDays') : 'Save replacement days'}
               </button>
               <p class="muted replacement-save-msg" data-replacement-msg="${assignment.course_id}" hidden></p>
             </div>
@@ -281,8 +281,8 @@
               });
               if (msgEl) {
                 msgEl.textContent = dates.length
-                  ? (typeof t === 'function' ? t('dashboard.replacementSaved') : "Jours enregistrés — l'administrateur peut assigner un remplaçant.")
-                  : (typeof t === 'function' ? t('dashboard.replacementCleared') : 'Aucun jour à remplacer enregistré.');
+                  ? (typeof t === 'function' ? t('dashboard.replacementSaved') : "Days saved — 'administrateur peut assigner un substitute.")
+                  : (typeof t === 'function' ? t('dashboard.replacementCleared') : 'No replacement days saved.');
                 msgEl.hidden = false;
               }
             } catch (err) {

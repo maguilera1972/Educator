@@ -39,9 +39,9 @@ function schedulePickerHtml(courseId, durationDays, title = '', initialDates = [
     ? ` data-replacement-requested="${replacementRequested.map((d) => d.date || d).join(',')}"`
     : '';
 
-  let hintExtra = `(1 à ${durationDays}, planification partielle possible)`;
+  let hintExtra = `(1 to ${durationDays}, partial scheduling allowed)`;
   if (replacementMode && allowedList.length) {
-    hintExtra = `(remplacement : choisissez 1 à ${allowedList.length} jour(s) parmi la planification existante)`;
+    hintExtra = `(replacement: choose 1 to ${allowedList.length} day(s) from the existing schedule)`;
   }
 
   return `
@@ -58,7 +58,7 @@ function schedulePickerHtml(courseId, durationDays, title = '', initialDates = [
         <span class="schedule-picker-partial-hint">${hintExtra}</span>
       </p>
       <div class="schedule-picker-nav">
-        <button type="button" class="schedule-picker-nav-btn" data-schedule-prev aria-label="Mois précédent">‹</button>
+        <button type="button" class="schedule-picker-nav-btn" data-schedule-prev aria-label="Previous month">‹</button>
         <span class="schedule-picker-month" data-schedule-month></span>
         <button type="button" class="schedule-picker-nav-btn" data-schedule-next aria-label="Mois suivant">›</button>
       </div>
@@ -123,8 +123,8 @@ function mountSchedulePicker(root) {
       summaryEl.textContent = dates.length
         ? `Jours choisis : ${formatDatesList(dates)}`
         : isReplacement
-          ? 'Sélectionnez un ou plusieurs jours parmi la planification existante (orange = remplacement demandé).'
-          : 'Cliquez sur les jours du calendrier (consécutifs ou répartis).';
+          ? 'Select one or more days from the existing schedule (orange = replacement requested).'
+          : 'Click calendar days (consecutive or spread out).';
     }
     root.classList.toggle('is-complete', dates.length === duration);
     root.classList.toggle('is-partial', dates.length > 0 && dates.length < duration);
@@ -246,7 +246,7 @@ function bindCourseSelectSchedule(form, selectName, coursesById, options = {}) {
     if (!course) return;
 
     panel.hidden = false;
-    panel.innerHTML = '<p class="muted">Chargement du calendrier…</p>';
+    panel.innerHTML = '<p class="muted">Loading calendar…</p>';
 
     let pickerOptions = {};
     if (typeof options.fetchScheduleContext === 'function') {
@@ -318,18 +318,18 @@ function validateSchedulesInForm(form, courseIds, coursesById) {
     const dates = collectScheduleFromForm(form, courseId);
     const allowed = getAllowedDatesFromForm(form, courseId);
     const maxDays = allowed?.length ? allowed.length : duration;
-    const label = course?.title || 'Formation';
+    const label = course?.title || 'Course';
 
     if (!dates.length) {
-      throw new Error(`${label} : sélectionnez au moins un jour de formation.`);
+      throw new Error(`${label}: select at least one training day.`);
     }
     if (dates.length > maxDays) {
-      throw new Error(`${label} : maximum ${maxDays} jour(s) (${dates.length} sélectionné(s)).`);
+      throw new Error(`${label}: maximum ${maxDays} day(s) (${dates.length} selected).`);
     }
     if (allowed?.length) {
       const allowedSet = new Set(allowed);
       if (dates.some((d) => !allowedSet.has(d))) {
-        throw new Error(`${label} : les jours doivent faire partie de la planification existante.`);
+        throw new Error(`${label} : les jours doivent faire partie de la existing schedule.`);
       }
     }
   }
@@ -340,7 +340,7 @@ function coursesMapFromList(courses) {
 }
 
 function formatSessionDatesLabel(dates) {
-  if (!dates?.length) return 'Dates non définies';
+  if (!dates?.length) return 'Dates not set';
   return formatDatesList(dates);
 }
 

@@ -9,7 +9,7 @@ let modalAction = null;
 const MATERIAL_TYPES = ['slides', 'videos', 'docs', 'labs'];
 function materialLabels() {
   if (typeof t !== 'function') {
-    return { slides: 'Slides', videos: 'Vidéos', docs: 'Documents', labs: 'Labs' };
+    return { slides: 'Slides', videos: 'Videos', docs: 'Documents', labs: 'Labs' };
   }
   return {
     slides: t('material.slides'),
@@ -22,7 +22,7 @@ function materialCountLabels() {
   if (typeof t !== 'function') {
     return {
       slides: ['slide', 'slides'],
-      videos: ['vidéo', 'vidéos'],
+      videos: ['video', 'videos'],
       docs: ['document', 'documents'],
       labs: ['lab', 'labs'],
     };
@@ -48,7 +48,7 @@ const MATERIAL_ICONS = {
 const SECTIONED_TYPES = MATERIAL_TYPES;
 const MATERIAL_COUNT_LABELS = new Proxy({}, {
   get(_target, prop) {
-    return materialCountLabels()[prop] || ['élément', 'éléments'];
+    return materialCountLabels()[prop] || ['item', 'items'];
   },
 });
 
@@ -76,13 +76,13 @@ function setAddModuleButtonEnabled(enabled) {
 }
 const EMPTY_SECTION_LABELS = {
   slides: 'Aucun slide dans cette section',
-  videos: 'Aucune vidéo dans cette section',
+  videos: 'Aucune video dans cette section',
   docs: 'Aucun document dans cette section',
   labs: 'Aucun lab dans cette section',
 };
 const EMPTY_TYPE_LABELS = {
   slides: 'Aucun slide',
-  videos: 'Aucune vidéo',
+  videos: 'Aucune video',
   docs: 'Aucun document',
   labs: 'Aucun lab',
 };
@@ -99,8 +99,8 @@ function escapeHtml(str) {
 
 function sectionFormFields(section = {}) {
   return `
-    <div class="field"><label>Titre du module / sujet</label><input name="title" value="${escapeHtml(section.title || '')}" required placeholder="Ex. Module 1 — Introduction"></div>
-    <div class="field"><label>Description</label><textarea name="description" rows="3" placeholder="Objectifs, sujets abordés, prérequis…">${escapeHtml(section.description || '')}</textarea></div>
+    <div class="field"><label>Title du module / sujet</label><input name="title" value="${escapeHtml(section.title || '')}" required placeholder="Ex. Module 1 — Introduction"></div>
+    <div class="field"><label>Description</label><textarea name="description" rows="3" placeholder="Objectives, topics covered, prerequisites…">${escapeHtml(section.description || '')}</textarea></div>
   `;
 }
 
@@ -152,7 +152,7 @@ function showSectionManageModal(type, sections) {
 
   document.querySelectorAll('[data-action="delete-section-from-manage"]').forEach((btn) => {
     btn.addEventListener('click', async () => {
-      if (!confirm('Supprimer cette section ? Les éléments seront déplacés vers « Sans catégorie ».')) return;
+      if (!confirm('Delete this section? Items will be moved to “Uncategorized”.')) return;
       await API.request(`/api/courses/${courseId}/material-sections/${btn.dataset.id}`, { method: 'DELETE' });
       modal.hidden = true;
       loadCourse();
@@ -234,7 +234,7 @@ async function loadCourse() {
         }).join('');
         showModal(typeof t === 'function' ? t('common.edit') : 'Modifier le cours', `
           <div class="field"><label>${typeof t === 'function' ? t('courses.subject') : 'Sujet'}</label><select name="subject" required>${subjectOptions}</select></div>
-          <div class="field"><label>${typeof t === 'function' ? t('courses.courseTitle') : 'Titre'}</label><input name="title" value="${escapeHtml(rawCourse.title)}" required></div>
+          <div class="field"><label>${typeof t === 'function' ? t('courses.courseTitle') : 'Title'}</label><input name="title" value="${escapeHtml(rawCourse.title)}" required></div>
           <div class="field"><label>${typeof t === 'function' ? t('courses.description') : 'Description'}</label><textarea name="description" rows="3">${escapeHtml(rawCourse.description || '')}</textarea></div>
         `, async (fd) => {
           await API.request(`/api/courses/${courseId}`, {
@@ -249,9 +249,9 @@ async function loadCourse() {
       };
       document.getElementById('delete-course-btn').onclick = async () => {
         if (!confirm(
-          'Supprimer cette formation ?\n\n'
-          + 'Les accès des apprenants à cette formation seront retirés.\n'
-          + 'Les comptes apprenants ne seront pas supprimés.'
+          'Delete this course?\n\n'
+          + 'Learner access to this course will be revoked.\n'
+          + 'Learner accounts will not be deleted.'
         )) return;
         const result = await API.request(`/api/courses/${courseId}`, { method: 'DELETE' });
         if (result.message) alert(result.message);
@@ -260,7 +260,7 @@ async function loadCourse() {
       setAddModuleButtonEnabled(canManageModules);
     } else if (enrolled) {
       actions.innerHTML = `
-        <span class="role-badge role-learner" title="Vous conservez l'accès au contenu après la session">Accès permanent</span>
+        <span class="role-badge role-learner" title="You keep access to the content after the session">Permanent access</span>
       `;
       setAddModuleButtonEnabled(false);
     } else {
@@ -277,10 +277,10 @@ async function loadCourse() {
       document.getElementById('evaluation-section').hidden = true;
       if (isPendingLearner(user)) {
         bannerText.textContent =
-          'Votre compte est en attente de validation par un administrateur. Vous recevrez l\'accès à vos formations une fois validé.';
+          'Your account is pending administrator approval. You will receive access to your courses once approved.';
       } else {
         bannerText.textContent =
-          'Vous n\'avez pas accès à cette formation. Seul l\'administrateur peut vous l\'assigner.';
+          'You do not have access to this course. Only an administrator can assign it.';
       }
     } else {
       banner.hidden = true;
@@ -307,13 +307,13 @@ function renderEvaluationSection(course) {
 }
 
 function itemCountLabel(type, count) {
-  const [singular, plural] = MATERIAL_COUNT_LABELS[type] || ['élément', 'éléments'];
+  const [singular, plural] = MATERIAL_COUNT_LABELS[type] || ['item', 'items'];
   return `${count} ${count === 1 ? singular : plural}`;
 }
 
 function viewedBadgeHtml(item) {
   if (item.viewed) {
-    return '<span class="material-viewed-badge is-viewed" title="Déjà consulté">✓ Vu</span>';
+    return '<span class="material-viewed-badge is-viewed" title="Already viewed">✓ Viewed</span>';
   }
   return `<span class="material-viewed-badge" data-viewed-badge="${item.id}"></span>`;
 }
@@ -360,7 +360,7 @@ function docItemHtml(item) {
   if (item.has_file) {
     const downloadUrl = API.materialFileLink(courseId, item.id);
     const isPdf = slideFileKind(item) === 'pdf';
-    const downloadLabel = typeof t === 'function' ? t('material.download') : 'Télécharger';
+    const downloadLabel = typeof t === 'function' ? t('material.download') : 'Download';
     const viewLabel = typeof t === 'function' ? t('material.view') : 'Consulter';
     let actions = `<a href="${downloadUrl}" target="_blank" rel="noopener" class="btn-secondary btn-xs doc-download-link" data-material-id="${item.id}">${downloadLabel}</a>`;
 
@@ -440,7 +440,7 @@ function slideViewerHtml(item, src, kind, isOwner) {
       <a href="${src}" target="_blank" rel="noopener" class="btn-secondary btn-sm material-stream-open" data-material-id="${item.id}" data-stream="${src}">
         Consulter en ligne
       </a>
-      ${!isOwner ? '<p class="muted">Téléchargement désactivé pour les participants.</p>' : ''}
+      ${!isOwner ? '<p class="muted">Downloads disabled for participants.</p>' : ''}
     </div>
   `;
 }
@@ -463,7 +463,7 @@ function slideItemHtml(item, isOwner) {
         `data-stream-src="1" data-fallback-src="${fallbackSrc}" data-material-id="${item.id}"`
       );
     const ownerDownload = isOwner
-      ? `<a href="${API.materialFileLink(courseId, item.id)}" target="_blank" rel="noopener" class="btn-secondary btn-xs slide-download-link">${typeof t === 'function' ? t('material.download') : 'Télécharger'}</a>`
+      ? `<a href="${API.materialFileLink(courseId, item.id)}" target="_blank" rel="noopener" class="btn-secondary btn-xs slide-download-link">${typeof t === 'function' ? t('material.download') : 'Download'}</a>`
       : '';
 
     return `
@@ -536,7 +536,7 @@ function videoItemHtml(item) {
           <strong>${item.title}</strong>
         </div>
         ${desc}
-        <a href="${item.url}" target="_blank" rel="noopener" class="btn-secondary btn-sm">Ouvrir la vidéo externe</a>
+        <a href="${item.url}" target="_blank" rel="noopener" class="btn-secondary btn-sm">Ouvrir la video externe</a>
       </div>
     `;
   }
@@ -551,7 +551,7 @@ function groupMaterialsBySection(items, sections, showEmpty) {
   }));
 
   const unsectioned = {
-    section: { id: null, title: 'Sans catégorie' },
+    section: { id: null, title: 'Uncategorized' },
     items: items.filter((item) => !item.section_id),
   };
 
@@ -570,7 +570,7 @@ function sectionOptionsHtml(sections, selectedId = '') {
   const opts = sections.map((s) =>
     `<option value="${s.id}"${String(s.id) === String(selectedId) ? ' selected' : ''}>${s.title}</option>`
   ).join('');
-  return `<option value="">Sans catégorie</option>${opts}`;
+  return `<option value="">Uncategorized</option>${opts}`;
 }
 
 function sectionFieldHtml(type, sections, selectedId = '') {
@@ -581,7 +581,7 @@ function sectionFieldHtml(type, sections, selectedId = '') {
       <div class="field">
         <label>Section</label>
         <select name="section_id">
-          <option value="" selected>Sans catégorie</option>
+          <option value="" selected>Uncategorized</option>
         </select>
         <p class="muted section-field-hint">Aucune section pour l'instant — utilisez « + Section » pour en créer une, puis assignez ce fichier ici.</p>
       </div>
@@ -592,7 +592,7 @@ function sectionFieldHtml(type, sections, selectedId = '') {
     <div class="field">
       <label>Section</label>
       <select name="section_id">${sectionOptionsHtml(sections, selectedId)}</select>
-      <p class="muted section-field-hint">Assignez ce fichier à un module ou laissez « Sans catégorie ».</p>
+      <p class="muted section-field-hint">Assignez ce fichier à un module ou laissez « Uncategorized ».</p>
     </div>
   `;
 }
@@ -618,7 +618,7 @@ function renderMaterialSections(type, items, sections, isOwner) {
         const progress = group.items.length
           ? `<span class="material-section-progress">${typeof t === 'function'
             ? t('material.consulted', { n: viewedCount, total: group.items.length, s: viewedCount !== 1 ? 's' : '' })
-            : `${viewedCount}/${group.items.length} consulté${viewedCount !== 1 ? 's' : ''}`}</span>`
+            : `${viewedCount}/${group.items.length} viewed${viewedCount !== 1 ? 's' : ''}`}</span>`
           : '';
         const sectionDesc = group.section.description
           ? `<span class="material-section-desc">${escapeHtml(group.section.description)}</span>`
@@ -654,7 +654,7 @@ function renderMaterialSections(type, items, sections, isOwner) {
                       </div>
                       ${isOwner ? `
                         <div class="inline-actions material-row-actions">
-                          ${!item.section_id ? `<span class="unassigned-badge" title="${typeof t === 'function' ? t('material.unassigned') : 'Non assigné'}">${typeof t === 'function' ? t('material.unassigned') : 'Non assigné'}</span>` : ''}
+                          ${!item.section_id ? `<span class="unassigned-badge" title="${typeof t === 'function' ? t('material.unassigned') : 'Unassigned'}">${typeof t === 'function' ? t('material.unassigned') : 'Unassigned'}</span>` : ''}
                           <button type="button" class="btn-secondary btn-xs" data-action="edit-material" data-id="${item.id}">${typeof t === 'function' ? t('common.edit') : 'Modifier'}</button>
                           <button type="button" class="btn-danger btn-xs" data-action="delete-material" data-id="${item.id}">×</button>
                         </div>
@@ -676,7 +676,7 @@ function markMaterialViewedUi(materialId, entryEl) {
   if (badge) {
     badge.classList.add('is-viewed');
     badge.textContent = '✓ Vu';
-    badge.title = 'Déjà consulté';
+    badge.title = 'Already viewed';
     badge.removeAttribute('data-viewed-badge');
   }
 
@@ -729,7 +729,7 @@ function sectionNameFromRelativePath(relativePath) {
     .filter(Boolean);
   if (parts.length >= 3) return parts[1];
   if (parts.length >= 1) return parts[0];
-  return 'Sans catégorie';
+  return 'Uncategorized';
 }
 
 function groupFilesByFolderSections(files, filterFn) {
@@ -745,14 +745,14 @@ function groupFilesByFolderSections(files, filterFn) {
 
 function folderImportPreviewHtml(groups) {
   if (!groups.size) {
-    return '<p class="muted">Aucune vidéo détectée dans le dossier sélectionné.</p>';
+    return '<p class="muted">No videos detected in the selected folder.</p>';
   }
   const lines = [...groups.entries()].map(([title, files]) =>
-    `<li><strong>${escapeHtml(title)}</strong> — ${files.length} vidéo${files.length > 1 ? 's' : ''}</li>`
+    `<li><strong>${escapeHtml(title)}</strong> — ${files.length} video${files.length > 1 ? 's' : ''}</li>`
   ).join('');
   const total = [...groups.values()].reduce((n, list) => n + list.length, 0);
   return `
-    <p class="muted">${total} vidéo${total > 1 ? 's' : ''} · ${groups.size} section${groups.size > 1 ? 's' : ''} (créées automatiquement si besoin)</p>
+    <p class="muted">${total} video${total > 1 ? 's' : ''} · ${groups.size} section${groups.size > 1 ? 's' : ''} (créées automatiquement si besoin)</p>
     <ul class="folder-import-preview">${lines}</ul>
   `;
 }
@@ -790,7 +790,7 @@ async function ensureMaterialSectionId(type, title, cache) {
 async function uploadFolderVideos(type, fileList, progressEl) {
   const groups = groupFilesByFolderSections([...fileList], isVideoImportFile);
   if (!groups.size) {
-    throw new Error('Aucune vidéo trouvée dans le dossier sélectionné');
+    throw new Error('No video found in the selected folder');
   }
 
   const sectionCache = new Map();
@@ -986,7 +986,7 @@ function updateSectionProgress(sectionGroup) {
   if (progressEl && items.length) {
     progressEl.textContent = typeof t === 'function'
       ? t('material.consulted', { n: viewed, total: items.length, s: viewed !== 1 ? 's' : '' })
-      : `${viewed}/${items.length} consulté${viewed !== 1 ? 's' : ''}`;
+      : `${viewed}/${items.length} viewed${viewed !== 1 ? 's' : ''}`;
   }
 }
 
@@ -1038,7 +1038,7 @@ function renderMaterials(materials, isOwner, canView, materialSectionsByType = {
       href="${escapeHtml(evaluationUrl)}"
       target="_blank"
       rel="noopener noreferrer"
-      title="Ouvrir le formulaire d'évaluation dans un nouvel onglet"
+      title="Open the evaluation form in a new tab"
     >
       <span class="materials-tab-icon" aria-hidden="true">📝</span>
       <span class="materials-tab-label">Évaluation</span>
@@ -1057,7 +1057,7 @@ function renderMaterials(materials, isOwner, canView, materialSectionsByType = {
           ${isOwner ? `
             <div class="material-actions">
               ${isSectioned ? `<button type="button" class="btn-secondary btn-xs" data-action="add-material-section" data-type="${type}">${typeof t === 'function' ? t('material.addSection') : '+ Section'}</button>` : ''}
-              ${isSectioned ? `<button type="button" class="btn-secondary btn-xs" data-action="manage-material-sections" data-type="${type}">${typeof t === 'function' ? t('material.manageSections') : 'Gérer les sections'}</button>` : ''}
+              ${isSectioned ? `<button type="button" class="btn-secondary btn-xs" data-action="manage-material-sections" data-type="${type}">${typeof t === 'function' ? t('material.manageSections') : 'Manage sections'}</button>` : ''}
               <button type="button" class="btn-secondary btn-xs" data-action="add-material" data-type="${type}">${typeof t === 'function' ? t('material.add') : '+ Ajouter'}</button>
               <button type="button" class="btn-secondary btn-xs" data-action="batch-upload" data-type="${type}">${typeof t === 'function' ? t('material.import') : 'Importer'}</button>
               <input type="file" multiple hidden data-batch-input="${type}"${type === 'videos' ? ' accept="video/*"' : ''}>
@@ -1068,14 +1068,14 @@ function renderMaterials(materials, isOwner, canView, materialSectionsByType = {
           ? (isSectioned
             ? renderMaterialSections(type, items, sections, isOwner)
             : `<p class="muted">${EMPTY_TYPE_LABELS[type]}</p>`)
-          : '<p class="muted">Accessible après inscription.</p>'}
+          : '<p class="muted">Available after enrollment.</p>'}
       </article>
     `;
   }).join('');
 
   grid.innerHTML = `
     <div class="materials-browser">
-      <nav class="materials-tab-bar" aria-label="Types de matériel">${tabBar}</nav>
+      <nav class="materials-tab-bar" aria-label="Material types">${tabBar}</nav>
       <div class="materials-panels">${panels}</div>
     </div>
   `;
@@ -1133,7 +1133,7 @@ function bindMaterialEvents(isOwner, materialSectionsByType = {}) {
     btn.addEventListener('click', async (e) => {
       e.preventDefault();
       e.stopPropagation();
-      if (!confirm('Supprimer cette section ? Les éléments seront déplacés vers « Sans catégorie ».')) return;
+      if (!confirm('Delete this section? Items will be moved to “Uncategorized”.')) return;
       await API.request(`/api/courses/${courseId}/material-sections/${btn.dataset.id}`, { method: 'DELETE' });
       loadCourse();
     });
@@ -1147,7 +1147,7 @@ function bindMaterialEvents(isOwner, materialSectionsByType = {}) {
       form.setAttribute('enctype', 'multipart/form-data');
 
       showModal(`Ajouter — ${MATERIAL_LABELS[type]}`, `
-        <div class="field"><label>Titre</label><input name="title" placeholder="Optionnel si fichier fourni"></div>
+        <div class="field"><label>Title</label><input name="title" placeholder="Optionnel si fichier fourni"></div>
         <div class="field"><label>Description</label><input name="description"></div>
         ${sectionFieldHtml(type, sections)}
         <div class="field"><label>Fichier</label><input name="file" type="file"${type === 'videos' ? ' accept="video/*"' : ''}></div>
@@ -1210,7 +1210,7 @@ function bindMaterialEvents(isOwner, materialSectionsByType = {}) {
               <input name="folder_files" type="file" webkitdirectory directory multiple accept="video/*">
               <p class="muted upload-hint">
                 Sélectionnez le dossier parent : chaque sous-dossier devient une section ;
-                les vidéos à la racine vont dans une section portant le nom du dossier choisi.
+                les videos à la racine vont dans une section portant le nom du dossier choisi.
                 Les sous-dossiers imbriqués restent dans la section du 1er niveau.
               </p>
               <div data-folder-preview></div>
@@ -1222,13 +1222,13 @@ function bindMaterialEvents(isOwner, materialSectionsByType = {}) {
 
           if (folderMode && mode === 'folder') {
             const folderFiles = fd.getAll('folder_files').filter((file) => file && file.size > 0);
-            if (!folderFiles.length) throw new Error('Sélectionnez un dossier contenant des vidéos');
+            if (!folderFiles.length) throw new Error('Select a folder containing videos');
             await uploadFolderVideos(type, folderFiles, progressEl);
             return;
           }
 
           const files = fd.getAll('files').filter((file) => file && file.size > 0);
-          if (!files.length) throw new Error('Sélectionnez au moins un fichier');
+          if (!files.length) throw new Error('Select at least one file');
           await uploadFilesSequential(type, files, fd.get('section_id') || '', progressEl);
         });
 
@@ -1269,8 +1269,8 @@ function bindMaterialEvents(isOwner, materialSectionsByType = {}) {
       const form = document.getElementById('modal-form');
       form.setAttribute('enctype', 'multipart/form-data');
 
-      showModal('Modifier l\'élément', `
-        <div class="field"><label>Titre</label><input name="title" required></div>
+      showModal('Modifier l\'item', `
+        <div class="field"><label>Title</label><input name="title" required></div>
         <div class="field"><label>Description</label><input name="description"></div>
         ${sectionFieldHtml(itemType, sections, item.section_id || '')}
         <div class="field"><label>URL externe</label><input name="url" type="url"></div>
@@ -1308,7 +1308,7 @@ function bindMaterialEvents(isOwner, materialSectionsByType = {}) {
 
   document.querySelectorAll('[data-action="delete-material"]').forEach((btn) => {
     btn.addEventListener('click', async () => {
-      if (!confirm('Supprimer cet élément ?')) return;
+      if (!confirm('Supprimer cet item ?')) return;
       await API.request(`/api/courses/${courseId}/materials/${btn.dataset.id}`, { method: 'DELETE' });
       loadCourse();
     });
@@ -1339,7 +1339,7 @@ function renderModules(modules, canManageModules, canView) {
           <div class="subsection">
             <div class="subsection-header">
               <strong>Leçons</strong>
-              ${canManageModules ? `<button class="btn-secondary btn-xs" data-action="add-lesson" data-module="${mod.id}">+ Leçon</button>` : ''}
+              ${canManageModules ? `<button class="btn-secondary btn-xs" data-action="add-lesson" data-module="${mod.id}">+ Lesson</button>` : ''}
             </div>
             <ul class="item-list">
               ${mod.lessons.length
@@ -1349,7 +1349,7 @@ function renderModules(modules, canManageModules, canView) {
                     ${canManageModules ? `<button class="btn-danger btn-xs" data-action="delete-lesson" data-module="${mod.id}" data-id="${l.id}">×</button>` : ''}
                   </li>
                 `).join('')
-                : '<li class="muted">Aucune leçon</li>'}
+                : '<li class="muted">No lessons</li>'}
             </ul>
           </div>
           <div class="subsection">
@@ -1365,11 +1365,11 @@ function renderModules(modules, canManageModules, canView) {
                     ${canManageModules ? `<button class="btn-danger btn-xs" data-action="delete-quiz" data-module="${mod.id}" data-id="${q.id}">×</button>` : ''}
                   </li>
                 `).join('')
-                : '<li class="muted">Aucun quiz</li>'}
+                : '<li class="muted">No quizzes</li>'}
             </ul>
           </div>
         </div>
-      ` : '<p class="muted">Contenu accessible après inscription.</p>'}
+      ` : '<p class="muted">Content available after enrollment.</p>'}
     </article>
   `).join('');
 
@@ -1382,7 +1382,7 @@ function bindModuleEvents(canManageModules) {
     document.getElementById('add-module-btn').onclick = () => {
       if (!canUserManageModules(courseData?.can_manage)) return;
       showModal('Nouveau module', `
-        <div class="field"><label>Titre</label><input name="title" required></div>
+        <div class="field"><label>Title</label><input name="title" required></div>
       `, async (fd) => {
         await API.request(`/api/courses/${courseId}/modules`, {
           method: 'POST',
@@ -1402,7 +1402,7 @@ function bindModuleEvents(canManageModules) {
 
       if (action === 'edit-module') {
         showModal('Modifier le module', `
-          <div class="field"><label>Titre</label><input name="title" value="${el.dataset.title}" required></div>
+          <div class="field"><label>Title</label><input name="title" value="${el.dataset.title}" required></div>
         `, async (fd) => {
           await API.request(`/api/courses/${courseId}/modules/${id}`, {
             method: 'PUT',
@@ -1418,8 +1418,8 @@ function bindModuleEvents(canManageModules) {
       }
 
       if (action === 'add-lesson') {
-        showModal('Nouvelle leçon', `
-          <div class="field"><label>Titre</label><input name="title" required></div>
+        showModal('New lesson', `
+          <div class="field"><label>Title</label><input name="title" required></div>
           <div class="field"><label>Contenu</label><textarea name="content" rows="6"></textarea></div>
         `, async (fd) => {
           await API.request(`/api/courses/${courseId}/modules/${moduleId}/lessons`, {
@@ -1439,19 +1439,19 @@ function bindModuleEvents(canManageModules) {
       }
 
       if (action === 'delete-lesson') {
-        if (!confirm('Supprimer cette leçon ?')) return;
+        if (!confirm('Delete this lesson?')) return;
         await API.request(`/api/courses/${courseId}/modules/${moduleId}/lessons/${id}`, { method: 'DELETE' });
         loadCourse();
       }
 
       if (action === 'add-quiz') {
         showModal('Nouveau quiz', `
-          <div class="field"><label>Titre</label><input name="title" required></div>
+          <div class="field"><label>Title</label><input name="title" required></div>
           <div class="field"><label>Question</label><input name="question" required></div>
           <div class="field"><label>Option 1</label><input name="opt0" required></div>
           <div class="field"><label>Option 2</label><input name="opt1" required></div>
           <div class="field"><label>Option 3</label><input name="opt2"></div>
-          <div class="field"><label>Bonne réponse (1, 2 ou 3)</label><input name="correct" type="number" min="1" max="3" value="1" required></div>
+          <div class="field"><label>Correct answer (1, 2 or 3)</label><input name="correct" type="number" min="1" max="3" value="1" required></div>
         `, async (fd) => {
           const options = [fd.get('opt0'), fd.get('opt1'), fd.get('opt2')].filter(Boolean);
           await API.request(`/api/courses/${courseId}/modules/${moduleId}/quizzes`, {

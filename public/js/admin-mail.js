@@ -7,12 +7,12 @@ function renderMailConfigStatus(settings) {
     return;
   }
   if (!settings.enabled) {
-    badge.textContent = 'Désactivé';
+    badge.textContent = 'Disabled';
     badge.className = 'role-badge role-pending';
     return;
   }
   if (settings.configured) {
-    badge.textContent = 'Opérationnel';
+    badge.textContent = 'Operational';
     badge.className = 'role-badge role-instructor';
     return;
   }
@@ -33,8 +33,8 @@ function fillMailConfigForm(settings) {
   const hint = document.getElementById('mail-secret-hint');
   if (hint) {
     hint.textContent = settings.client_secret_set
-      ? `Secret enregistré : ${settings.client_secret_hint}`
-      : 'Aucun secret enregistré.';
+      ? `Secret saved: ${settings.client_secret_hint}`
+      : 'No secret saved.';
   }
   const testTo = document.getElementById('mail-test-to');
   if (testTo && !testTo.value && window.currentAdminUser?.email) {
@@ -74,7 +74,7 @@ function bindMailConfigEvents() {
         }),
       });
       fillMailConfigForm(data.settings);
-      setMailStatus('mail-save-status', data.message || 'Configuration enregistrée.');
+      setMailStatus('mail-save-status', data.message || 'Configuration saved.');
     } catch (err) {
       setMailStatus('mail-save-status', err.message, 'error');
     }
@@ -94,7 +94,7 @@ function bindMailConfigEvents() {
         method: 'POST',
         body: JSON.stringify({ to }),
       });
-      setMailStatus('mail-test-status', data.message || `E-mail de test envoyé à ${to}.`);
+      setMailStatus('mail-test-status', data.message || `Test email sent to ${to}.`);
     } catch (err) {
       setMailStatus('mail-test-status', err.message, 'error');
     } finally {

@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <link rel="icon" type="image/png" href="/images/favicon.png" data-app-favicon>
-  <title>Cours — LMS-Educator</title>
-  <link rel="stylesheet" href="/css/style.css?v=56">
-  <script src="/js/config.js?v=3"></script>
-  <script src="/js/i18n.js?v=3"></script>
+  <title>Courses — ALSO LMS</title>
+  <link rel="stylesheet" href="/css/style.css?v=58">
+  <script src="/js/config.js?v=4"></script>
+  <script src="/js/i18n.js?v=4"></script>
   <script src="/js/i18n-catalog.js?v=1"></script>
 </head>
-<body data-page-title-key="nav.courses" data-page-title="Cours">
+<body data-page-title-key="nav.courses" data-page-title="Courses">
   <header class="header">
     <div class="container">
       <a href="/" class="logo brand-logo">
@@ -18,17 +18,17 @@
         <span class="logo-wordmark"><span class="logo-wordmark-lms">LMS</span><span class="logo-wordmark-educator">-Educator</span></span>
       </a>
       <nav>
-        <a href="/courses.html" id="nav-courses" data-i18n="nav.courses">Cours</a>
-        <a href="/dashboard.html" id="nav-dashboard" data-i18n="nav.dashboard">Tableau de bord</a>
+        <a href="/courses.html" id="nav-courses" data-i18n="nav.courses">Courses</a>
+        <a href="/dashboard.html" id="nav-dashboard" data-i18n="nav.dashboard">Dashboard</a>
         <a href="/admin.html" id="nav-admin" style="display:none" data-i18n="nav.admin">Administration</a>
         <span id="nav-user" class="nav-user"></span>
-        <a href="#" id="logout-btn" class="nav-logout" hidden data-i18n="nav.logout">Déconnexion</a>
+        <a href="#" id="logout-btn" class="nav-logout" hidden data-i18n="nav.logout">Log out</a>
       </nav>
     </div>
   </header>
 
   <main class="container page">
-    <div id="loading" class="muted" data-i18n="course.loading">Chargement…</div>
+    <div id="loading" class="muted" data-i18n="course.loading">Loading…</div>
     <div id="content" hidden>
       <div class="section-header">
         <div>
@@ -40,12 +40,12 @@
       </div>
 
       <section id="enroll-banner" class="banner" hidden>
-        <p id="enroll-banner-text" data-i18n="course.enrollBanner">Cette formation vous sera assignée par votre administrateur.</p>
+        <p id="enroll-banner-text" data-i18n="course.enrollBanner">This training will be assigned to you by your administrator.</p>
       </section>
 
       <section id="materials-section">
         <div class="section-header">
-          <h3 data-i18n="course.materials">Matériel de formation</h3>
+          <h3 data-i18n="course.materials">Training materials</h3>
         </div>
         <div id="materials-grid" class="materials-grid"></div>
       </section>
@@ -61,8 +61,8 @@
       <section id="evaluation-section" class="evaluation-section" hidden>
         <div class="card evaluation-card">
           <div class="evaluation-card-body">
-            <h3 data-i18n="course.evaluation">Évaluation de la formation</h3>
-            <p class="muted" data-i18n="course.evaluationHint">Votre avis nous aide à améliorer les prochaines sessions. Le formulaire s’ouvre dans un nouvel onglet.</p>
+            <h3 data-i18n="course.evaluation">Training evaluation</h3>
+            <p class="muted" data-i18n="course.evaluationHint">Your feedback helps us improve future sessions. The form opens in a new tab.</p>
           </div>
           <a
             id="evaluation-form-link"
@@ -70,7 +70,7 @@
             href="https://forms.cloud.microsoft/e/RFjBKzfwQQ"
             target="_blank"
             rel="noopener noreferrer"
-           data-i18n="course.evaluationOpen">Ouvrir le formulaire d’évaluation</a>
+           data-i18n="course.evaluationOpen">Open evaluation form</a>
         </div>
       </section>
     </div>
@@ -81,8 +81,8 @@
       <h3 id="modal-title"></h3>
       <form id="modal-form" method="post" enctype="multipart/form-data" action="#"></form>
       <div class="form-actions" id="modal-actions">
-        <button type="submit" form="modal-form" class="btn-primary" data-i18n="course.save">Enregistrer</button>
-        <button type="button" class="btn-secondary" id="modal-cancel" data-i18n="course.cancel">Annuler</button>
+        <button type="submit" form="modal-form" class="btn-primary" data-i18n="course.save">Save</button>
+        <button type="button" class="btn-secondary" id="modal-cancel" data-i18n="course.cancel">Cancel</button>
       </div>
       <p id="modal-error" class="status error" hidden></p>
     </div>

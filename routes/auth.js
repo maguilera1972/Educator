@@ -14,20 +14,20 @@ module.exports = function createAuthRouter(db) {
 
     if (first_name !== undefined || last_name !== undefined) {
       if (!first_name?.trim() || !last_name?.trim()) {
-        return res.status(400).json({ error: 'Prénom et nom de famille requis' });
+        return res.status(400).json({ error: 'First name and last name required' });
       }
     }
 
     if (!email?.trim() || !password || !fullName) {
-      return res.status(400).json({ error: 'Email, mot de passe, prénom et nom de famille requis' });
+      return res.status(400).json({ error: 'Email, password, first name and last name required' });
     }
     if (password.length < 6) {
-      return res.status(400).json({ error: 'Le mot de passe doit contenir au moins 6 caractères' });
+      return res.status(400).json({ error: 'Password must be at least 6 characters' });
     }
 
     const allowedRoles = ['learner', 'instructor'];
     if (role === 'admin') {
-      return res.status(403).json({ error: 'Le rôle administrateur ne peut pas être choisi à l\'inscription' });
+      return res.status(403).json({ error: 'The administrator role cannot be chosen at registration' });
     }
     const userRole = allowedRoles.includes(role) ? role : 'learner';
     const companyResult = normalizeCompany(company, { required: userRole === 'learner' });
@@ -61,16 +61,16 @@ module.exports = function createAuthRouter(db) {
 
       if (userRole === 'instructor') {
         response.message =
-          'Inscription enregistrée. Un administrateur doit valider votre profil formateur et vous assigner les formations à enseigner.';
+          'Registration saved. An administrator must approve your instructor profile and assign the courses you will teach.';
       } else {
         response.message =
-          'Inscription enregistrée. Un administrateur doit valider votre compte et vous assigner vos formations.';
+          'Registration saved. An administrator must approve your account and assign your courses.';
       }
 
       res.status(201).json(response);
     } catch (err) {
       if (err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
-        return res.status(409).json({ error: 'Cet email est déjà utilisé' });
+        return res.status(409).json({ error: 'This email is already in use' });
       }
       throw err;
     }
@@ -80,7 +80,7 @@ module.exports = function createAuthRouter(db) {
     const { email, password } = req.body;
 
     if (!email?.trim() || !password) {
-      return res.status(400).json({ error: 'Email et mot de passe requis' });
+      return res.status(400).json({ error: 'Email and password required' });
     }
 
     const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email.trim().toLowerCase());
@@ -101,7 +101,7 @@ module.exports = function createAuthRouter(db) {
     ).get(req.user.id);
 
     if (!user) {
-      return res.status(404).json({ error: 'Utilisateur introuvable' });
+      return res.status(404).json({ error: 'User not found' });
     }
 
     const enriched = await enrichUserWithAvatar(user, db);

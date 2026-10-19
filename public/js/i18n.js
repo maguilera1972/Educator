@@ -1,10 +1,10 @@
 /**
  * LMS-Educator internationalization
- * Locales: fr, en, it, es, de
+ * Locale: English only (ALSO LMS)
  */
 (function (global) {
   const STORAGE_KEY = 'lms_locale';
-  const LOCALES = ['fr', 'en', 'it', 'es', 'de'];
+  const LOCALES = ['en'];
   const LOCALE_LABELS = {
     fr: 'Français',
     en: 'English',
@@ -292,6 +292,7 @@
     },
 
     en: {
+      'common.notViewed': 'Not viewed',
       'lang.label': 'Language',
       'nav.courses': 'Courses',
       'nav.dashboard': 'Dashboard',
@@ -1349,16 +1350,11 @@
   }
 
   function detectLocale() {
+    // ALSO LMS: English-only UI
     try {
-      const saved = normalizeLocale(localStorage.getItem(STORAGE_KEY));
-      if (saved) return saved;
+      localStorage.setItem(STORAGE_KEY, 'en');
     } catch (_) {}
-    try {
-      const nav = (navigator.language || navigator.userLanguage || 'fr').toLowerCase();
-      const match = normalizeLocale(nav);
-      if (match) return match;
-    } catch (_) {}
-    return 'fr';
+    return 'en';
   }
 
   function interpolate(template, vars) {
@@ -1374,15 +1370,14 @@
       fallback = vars;
       vars = undefined;
     }
-    const dict = STRINGS[currentLocale] || STRINGS.fr;
-    const fr = STRINGS.fr[key];
-    const value = dict[key] ?? fr ?? fallback;
+    const dict = STRINGS.en || STRINGS[currentLocale] || {};
+    const value = dict[key] ?? STRINGS.fr?.[key] ?? fallback;
     if (value === undefined || value === null) return key;
     return interpolate(value, vars);
   }
 
   function hasKey(key) {
-    return !!(STRINGS[currentLocale]?.[key] ?? STRINGS.fr?.[key]);
+    return !!(STRINGS.en?.[key] ?? STRINGS[currentLocale]?.[key] ?? STRINGS.fr?.[key]);
   }
 
   function addTranslations(locale, entries) {
@@ -1446,7 +1441,7 @@
   }
 
   function setLocale(locale, { persist = true, apply = true } = {}) {
-    const next = normalizeLocale(locale) || 'fr';
+    const next = 'en';
     const changed = next !== currentLocale;
     currentLocale = next;
     if (persist) {
@@ -1528,6 +1523,8 @@
   }
 
   function mountLanguageSwitcher() {
+    // English-only: do not show language selector
+    if (LOCALES.length <= 1) return;
     if (document.getElementById('lang-switcher')) return;
     const header = document.querySelector('.header > .container');
     if (!header) return;

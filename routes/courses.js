@@ -189,13 +189,13 @@ module.exports = function createCoursesRouter(db) {
 
   router.put('/teaching/:courseId/replacement-days', authRequired, (req, res) => {
     if (!isActiveInstructor(req.user, db)) {
-      return res.status(403).json({ error: 'Accès réservé aux formateurs' });
+      return res.status(403).json({ error: 'Instructors only' });
     }
 
     const courseId = parseInt(req.params.courseId, 10);
     const assigned = isAssignedInstructor(db, req.user.id, courseId);
     if (!assigned) {
-      return res.status(404).json({ error: 'Formation introuvable dans votre planning' });
+      return res.status(404).json({ error: 'Course not found in your schedule' });
     }
 
     const result = setReplacementDatesForInstructor(
@@ -210,7 +210,7 @@ module.exports = function createCoursesRouter(db) {
 
     res.json({
       ok: true,
-      message: 'Jours à remplacer enregistrés',
+      message: 'Replacement days saved',
       replacement_dates: result.dates,
     });
   });
@@ -273,7 +273,7 @@ module.exports = function createCoursesRouter(db) {
     `).get(req.params.id);
 
     if (!course) {
-      return res.status(404).json({ error: 'Cours introuvable' });
+      return res.status(404).json({ error: 'Course not found' });
     }
 
     attachInstructorAvatar(db, course);
@@ -353,16 +353,16 @@ module.exports = function createCoursesRouter(db) {
   router.post('/', authRequired, (req, res) => {
     if (req.user.role !== 'admin') {
       return res.status(403).json({
-        error: 'Seul l\'administrateur peut créer des formations. Les formateurs reçoivent leurs cours par assignation.',
+        error: 'Only the administrator can create courses. Instructors receive their courses by assignmeon.',
       });
     }
 
     const { title, description, subject, evaluation_url: evaluationUrl } = req.body;
     if (!title?.trim()) {
-      return res.status(400).json({ error: 'Le titre est requis' });
+      return res.status(400).json({ error: 'Title is required' });
     }
     if (!subject || !isValidSubject(subject)) {
-      return res.status(400).json({ error: 'Un sujet valide est requis' });
+      return res.status(400).json({ error: 'A valid subject is required' });
     }
 
     const result = db.prepare(
@@ -388,7 +388,7 @@ module.exports = function createCoursesRouter(db) {
 
     const { title, description, subject, evaluation_url: evaluationUrl } = req.body;
     if (!title?.trim()) {
-      return res.status(400).json({ error: 'Le titre est requis' });
+      return res.status(400).json({ error: 'Title is required' });
     }
     if (subject !== undefined && !isValidSubject(subject)) {
       return res.status(400).json({ error: 'Sujet invalide' });
@@ -424,7 +424,7 @@ module.exports = function createCoursesRouter(db) {
 
   router.post('/:id/enroll', authRequired, (_req, res) => {
     res.status(403).json({
-      error: 'L\'assignation aux cours est réservée à l\'administrateur. Contactez votre responsable de formation.',
+      error: 'Course assignment is reserved for the administrator. Contact your training manager.',
     });
   });
 

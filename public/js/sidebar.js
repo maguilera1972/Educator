@@ -6,11 +6,11 @@ const CLOCK_TIMEZONES = [
   { value: 'Europe/London', label: 'Londres' },
   { value: 'Europe/Berlin', label: 'Berlin' },
   { value: 'Europe/Rome', label: 'Rome' },
-  { value: 'America/Montreal', label: 'Montréal' },
+  { value: 'America/Montreal', label: 'Montreal' },
   { value: 'America/New_York', label: 'New York' },
   { value: 'America/Los_Angeles', label: 'Los Angeles' },
   { value: 'America/Sao_Paulo', label: 'São Paulo' },
-  { value: 'Asia/Dubai', label: 'Dubaï' },
+  { value: 'Asia/Dubai', label: 'Dubai' },
   { value: 'Asia/Tokyo', label: 'Tokyo' },
   { value: 'Asia/Singapore', label: 'Singapour' },
   { value: 'Australia/Sydney', label: 'Sydney' },
@@ -284,7 +284,7 @@ function renderCalendarGrid() {
 }
 
 function relationLabel(relation) {
-  if (relation === 'teaching') return typeof t === 'function' ? t('sidebar.teacher') : 'Formateur';
+  if (relation === 'teaching') return typeof t === 'function' ? t('sidebar.teacher') : 'Instructor';
   return typeof t === 'function' ? t('sidebar.enrolled') : 'Inscrit';
 }
 
@@ -302,7 +302,7 @@ function renderCourseList() {
     const [y, m, d] = sidebarSelectedDay.split('-');
     heading.textContent = typeof t === 'function'
       ? t('sidebar.coursesOnDay', { date: `${d}.${m}.${y}` })
-      : `Cours du ${d}.${m}.${y}`;
+      : `Courses du ${d}.${m}.${y}`;
     mode = 'day';
   } else {
     const viewYmd = localYmd(sidebarView);
@@ -321,17 +321,17 @@ function renderCourseList() {
       if (status === 'teaching') return t('sidebar.status.teaching');
       return t('sidebar.status.permanent');
     }
-    if (status === 'completed') return 'Terminée — accès conservé';
+    if (status === 'completed') return 'Ended — access retained';
     if (status === 'active') return 'En cours';
-    if (status === 'upcoming') return 'À venir';
-    if (status === 'teaching') return 'Formateur';
-    return 'Accès permanent';
+    if (status === 'upcoming') return 'Upcoming';
+    if (status === 'teaching') return 'Instructor';
+    return 'Permanent access';
   };
 
   const libraryHtml = library.length
     ? `
       <div class="sidebar-library">
-        <p class="sidebar-library-title">${typeof t === 'function' ? t('sidebar.permanentAccess') : 'Accès permanent'}</p>
+        <p class="sidebar-library-title">${typeof t === 'function' ? t('sidebar.permanentAccess') : 'Permanent access'}</p>
         ${library.map((course) => `
           <a href="${course.url}" class="sidebar-course-item sidebar-course-item--library">
             <span class="sidebar-course-title">${course.title}</span>
@@ -343,15 +343,15 @@ function renderCourseList() {
     : '';
 
   if (!sidebarCourses.length && !library.length) {
-    list.innerHTML = `<p class="sidebar-empty">${typeof t === 'function' ? t('sidebar.empty') : 'Aucune formation assignée pour le moment.'}</p>`;
+    list.innerHTML = `<p class="sidebar-empty">${typeof t === 'function' ? t('sidebar.empty') : 'No courses assigned yet.'}</p>`;
     return;
   }
 
   if (!items.length) {
     list.innerHTML = `
       <p class="sidebar-empty">${mode === 'day'
-        ? (typeof t === 'function' ? t('sidebar.noCourseDay') : 'Aucun cours à cette date.')
-        : (typeof t === 'function' ? t('sidebar.noCourseMonth') : 'Aucune session planifiée ce mois-ci.')}</p>
+        ? (typeof t === 'function' ? t('sidebar.noCourseDay') : 'No courses on this date.')
+        : (typeof t === 'function' ? t('sidebar.noCourseMonth') : 'No sessions scheduled this month.')}</p>
       ${libraryHtml}
     `;
     return;
@@ -368,7 +368,7 @@ function renderCourseList() {
       `;
     }
     return `
-      <span class="sidebar-course-item sidebar-course-item--locked" title="${typeof t === 'function' ? t('sidebar.enrollmentRequired') : 'Inscription requise'}">
+      <span class="sidebar-course-item sidebar-course-item--locked" title="${typeof t === 'function' ? t('sidebar.enrollmentRequired') : 'Register requise'}">
         <span class="sidebar-course-title">${course.title}</span>
         <span class="sidebar-course-meta">${course.subject_label} · ${typeof t === 'function' ? t('sidebar.notEnrolled') : 'Non inscrit'}</span>
       </span>
@@ -419,7 +419,7 @@ function buildSidebarHtml() {
   const accountLinks = `
       <a href="/profile.html" class="sidebar-nav-link">${tr('nav.profile', 'Mon profil')}</a>
       ${isAdmin ? `<a href="/admin.html" class="sidebar-nav-link">${tr('nav.admin', 'Administration')}</a>` : ''}
-      <button type="button" class="sidebar-nav-link sidebar-nav-link--button" id="sidebar-logout-btn">${tr('nav.logout', 'Déconnexion')}</button>
+      <button type="button" class="sidebar-nav-link sidebar-nav-link--button" id="sidebar-logout-btn">${tr('nav.logout', 'Log out')}</button>
   `;
   return `
     <div class="sidebar-top">
@@ -452,20 +452,20 @@ function buildSidebarHtml() {
           </div>
         </div>
       </div>
-      <div class="sidebar-weather" id="sidebar-weather" aria-label="${tr('sidebar.weather', 'Météo locale')}"></div>
+      <div class="sidebar-weather" id="sidebar-weather" aria-label="${tr('sidebar.weather', 'Local weather')}"></div>
     </div>
 
     <div class="sidebar-panel">
     <nav class="sidebar-nav">
-      <a href="/dashboard.html" class="sidebar-nav-link">${tr('sidebar.dashboard', 'Tableau de bord')}</a>
-      <a href="/courses.html" class="sidebar-nav-link">${tr('sidebar.catalog', 'Catalogue des cours')}</a>
+      <a href="/dashboard.html" class="sidebar-nav-link">${tr('sidebar.dashboard', 'Dashboard')}</a>
+      <a href="/courses.html" class="sidebar-nav-link">${tr('sidebar.catalog', 'Course catalog')}</a>
       <a href="https://examinator.aguilera.ch/" class="sidebar-nav-link" target="_blank" rel="noopener noreferrer">${tr('sidebar.examSim', "Simulation d'examens")}</a>
       ${accountLinks}
     </nav>
 
     <section class="sidebar-calendar-section" aria-label="${tr('sidebar.calendar', 'Calendrier des formations')}">
       <div class="sidebar-calendar-header">
-        <button type="button" class="sidebar-cal-nav" id="sidebar-cal-prev" aria-label="${tr('sidebar.prevMonth', 'Mois précédent')}">‹</button>
+        <button type="button" class="sidebar-cal-nav" id="sidebar-cal-prev" aria-label="${tr('sidebar.prevMonth', 'Previous month')}">‹</button>
         <h3 id="sidebar-calendar-title" class="sidebar-calendar-title"></h3>
         <button type="button" class="sidebar-cal-nav" id="sidebar-cal-next" aria-label="${tr('sidebar.nextMonth', 'Mois suivant')}">›</button>
       </div>
@@ -491,7 +491,7 @@ function renderSidebarAvatar() {
   const fallback = user.gravatar_fallback || url;
   img.src = url;
   img.dataset.fallback = fallback;
-  img.alt = user.name ? `Avatar de ${user.name}` : 'Votre avatar';
+  img.alt = user.name ? `Avatar de ${user.name}` : 'Your avatar';
   img.onerror = () => {
     if (img.dataset.fallback && img.src !== img.dataset.fallback) {
       img.src = img.dataset.fallback;
@@ -571,7 +571,7 @@ function mountSidebar() {
   const aside = document.createElement('aside');
   aside.id = 'app-sidebar';
   aside.className = 'app-sidebar';
-  aside.setAttribute('aria-label', 'Menu latéral');
+  aside.setAttribute('aria-label', 'Side menu');
   aside.innerHTML = buildSidebarHtml();
 
   const mainWrap = document.createElement('div');
@@ -588,7 +588,7 @@ function mountSidebar() {
   bindClockTimezonePicker();
   renderSidebarAvatar();
   startClock();
-  // Afficher le calendrier immédiatement (même sans dates / avant l'API)
+  // Show the calendrier immédiatement (même sans dates / avant l'API)
   renderCalendarGrid();
   renderCourseList();
   if (typeof initSidebarWeather === 'function') initSidebarWeather();
@@ -617,7 +617,7 @@ async function loadSidebarData() {
     } catch (renderErr) {
       console.warn('[sidebar] rendu:', renderErr?.message || renderErr);
       if (list) {
-        list.innerHTML = '<p class="sidebar-empty">Aucune formation planifiée pour le moment.</p>';
+        list.innerHTML = '<p class="sidebar-empty">No courses scheduled yet.</p>';
       }
     }
   }
