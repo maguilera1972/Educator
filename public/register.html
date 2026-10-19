@@ -25,35 +25,19 @@
     <div class="auth-panel">
       <form class="auth-form card" id="register-form">
         <h2 data-i18n="register.title">Create an account</h2>
-        <div class="field-row">
-          <div class="field">
-            <label for="first-name" data-i18n="register.firstName">First name</label>
-            <input type="text" id="first-name" required autocomplete="given-name">
-          </div>
-          <div class="field">
-            <label for="last-name" data-i18n="register.lastName">Last name</label>
-            <input type="text" id="last-name" required autocomplete="family-name">
-          </div>
-        </div>
+        <p class="muted upload-hint">
+          Your ALSO portal profile is the source of identity. Use the same @also.com email.
+          No portal account yet?
+          <a id="portal-register-link" href="https://also.eureka-training.online/register">Register on the portal</a>.
+        </p>
         <div class="field">
           <label for="email" data-i18n="register.email">Email</label>
-          <input type="email" id="email" required autocomplete="email">
-        </div>
-        <div class="field" id="company-field">
-          <label for="company" data-i18n="register.company">Company</label>
-          <input type="text" id="company" name="company" maxlength="120" autocomplete="organization" placeholder="Your company name" data-i18n-placeholder="register.companyPlaceholder">Your company name<p class="muted upload-hint" id="company-hint" data-i18n="register.companyHint">Required for learners — enter the company for which you are taking the training.</p>
+          <input type="email" id="email" required autocomplete="email" placeholder="you@also.com">
         </div>
         <div class="field">
           <label for="password" data-i18n="register.password">Password</label>
           <input type="password" id="password" required minlength="6" autocomplete="new-password">
-        </div>
-        <div class="field">
-          <label for="role" data-i18n="register.profile">Profile</label>
-          <select id="role">
-            <option value="learner" data-i18n="register.roleLearner">Learner</option>
-            <option value="instructor" data-i18n="register.roleInstructor">Instructor (admin approval required)</option>
-          </select>
-          <p class="muted upload-hint" id="instructor-hint" hidden data-i18n="register.instructorHint">Instructor registrations must be approved by an administrator who will assign the courses to teach.</p>
+          <p class="muted upload-hint">LMS login password (portal name and profile are applied automatically).</p>
         </div>
         <p id="error" class="status error" hidden></p>
         <button type="submit" class="btn-primary btn-block" data-i18n="register.submit">Sign up</button>
@@ -66,47 +50,25 @@
   <script>
     if (API.getToken()) window.location.href = '/dashboard.html';
 
-    function syncCompanyField() {
-      const isLearner = document.getElementById('role').value === 'learner';
-      const companyInput = document.getElementById('company');
-      const companyHint = document.getElementById('company-hint');
-      companyInput.required = isLearner;
-      companyHint.hidden = !isLearner;
-      if (!isLearner) companyInput.value = companyInput.value; // keep value if switching back
-    }
-
-    document.getElementById('role').addEventListener('change', (e) => {
-      document.getElementById('instructor-hint').hidden = e.target.value !== 'instructor';
-      syncCompanyField();
-    });
-    syncCompanyField();
-
     document.getElementById('register-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const errEl = document.getElementById('error');
       errEl.hidden = true;
       try {
-        const firstName = document.getElementById('first-name').value.trim();
-        const lastName = document.getElementById('last-name').value.trim();
-        const role = document.getElementById('role').value;
-        const company = document.getElementById('company').value.trim();
-        if (role === 'learner' && !company) {
-          throw new Error(typeof t === 'function' ? t('register.companyRequired') : 'Enter your company');
-        }
         const data = await API.register({
-          first_name: firstName,
-          last_name: lastName,
           email: document.getElementById('email').value,
           password: document.getElementById('password').value,
-          role,
-          company,
+          role: 'learner',
         });
-        if (data.pending_approval && data.message) {
-          alert(data.message);
-        }
-        window.location.href = '/dashboard.html';
+        window.location.href = data.pending_approval ? '/dashboard.html' : '/dashboard.html';
       } catch (err) {
-        errEl.textContent = err.message;
+        let msg = err.message || 'Registration failed';
+        if (err.payload && err.payload.portal_register_url) {
+          msg += ' — open the portal registration page.';
+          const link = document.getElementById('portal-register-link');
+          if (link) link.href = err.payload.portal_register_url;
+        }
+        errEl.textContent = msg;
         errEl.hidden = false;
       }
     });

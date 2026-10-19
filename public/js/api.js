@@ -53,7 +53,10 @@ const API = {
           throw new Error('Session expired — signing in again…');
         }
       }
-      throw new Error(message);
+      const err = new Error(message);
+      err.status = res.status;
+      err.payload = data;
+      throw err;
     }
 
     if (data.token) {
